@@ -164,7 +164,7 @@ public class GameState : NetworkBehaviour
 		StateMachine[EGameState.Postgame].onEnter = prev =>
 		{
 			Level.Unload();
-			InterfaceManager.Instance.postgameUI.SetWinner(PlayerRegistry.OrderDesc(p => p.TotalScore).First());
+			InterfaceManager.Instance.postgameUI.SetWinner(PlayerRegistry.OrderAsc(p => p.TotalScore).First());
 			UIScreen.Focus(InterfaceManager.Instance.postgameUI.screen);
 			Server_DelaySetState(EGameState.Pregame, 5);
 		};
