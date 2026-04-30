@@ -9,13 +9,20 @@ public class Level : NetworkBehaviour
 
 	public float spawnHeight = 1f;
 
-	public static void Load(Level level)
+	public static void Load()
 	{
 		Unload();
-		if (GameManager.Instance.Runner.CanSpawn)
-		{
-			GameManager.Instance.Runner.Spawn(ResourcesManager.Instance.levels[GameManager.Instance.CurrentHole]);
-		}
+
+		if (!GameManager.Instance.Runner.CanSpawn)
+			return;
+
+		var variants = ResourcesManager.Instance
+			.levels[GameManager.Instance.CurrentHole]
+			.variants;
+
+		int index = GameManager.Instance.SelectedVariant;
+
+		GameManager.Instance.Runner.Spawn(variants[index]);
 	}
 
 	public static void Unload()

@@ -31,6 +31,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public int CurrentHole { get; set; }
 	[Networked]
 	public int TickStarted { get; set; }
+	[Networked]
+	public int SelectedVariant { get; set; }
 	public static float Time => Instance?.Object?.IsValid == true
 		? (Instance.TickStarted == 0 
 			? 0
@@ -73,7 +75,16 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public void OnSceneLoadDone(NetworkRunner runner)
 	{
 		if (runner.SimulationUnityScene.name == "Game")
-			Level.Load(ResourcesManager.Instance.levels[CurrentHole]);
+		{
+			
+			if (Runner.IsServer)
+			{
+				var variants = ResourcesManager.Instance.levels[CurrentHole].variants;
+				SelectedVariant = UnityEngine.Random.Range(0, variants.Count);
+			}
+
+			Level.Load();
+		}
 	}
 
 	[Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
