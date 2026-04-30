@@ -13,7 +13,13 @@ public class ResourcesManager : MonoBehaviour
 	public WorldNickname worldNicknamePrefab;
 	public GameObject splashEffect;
 
-	public Level[] levels;
+	[System.Serializable]
+	public class LevelVariants
+	{
+		public List<Level> variants;
+	}
+
+	public List<LevelVariants> levels;
 
 	private void Awake()
 	{
