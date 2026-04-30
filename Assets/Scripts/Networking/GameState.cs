@@ -71,7 +71,7 @@ public class GameState : NetworkBehaviour
 			else
 			{
 				GameManager.Instance.CurrentHole++;
-				if (Runner.IsServer) Level.Load(ResourcesManager.Instance.levels[GameManager.Instance.CurrentHole]);
+				if (Runner.IsServer) Level.Load();
 			}
 
 			UIScreen.Focus(InterfaceManager.Instance.hud);
@@ -144,7 +144,7 @@ public class GameState : NetworkBehaviour
 			GameManager.Instance.TickStarted = 0;
 
 			// if there are more holes to play
-			if (GameManager.Instance.CurrentHole + 1 < Mathf.Min(ResourcesManager.Instance.levels.Length, GameManager.CourseLength))
+			if (GameManager.Instance.CurrentHole + 1 < Mathf.Min(ResourcesManager.Instance.levels.Count, GameManager.CourseLength))
 			{
 				// then load the next hole and delay set state to intro
 				Server_DelaySetState(EGameState.Loading, 5);
@@ -164,7 +164,7 @@ public class GameState : NetworkBehaviour
 		StateMachine[EGameState.Postgame].onEnter = prev =>
 		{
 			Level.Unload();
-			InterfaceManager.Instance.postgameUI.SetWinner(PlayerRegistry.OrderDesc(p => p.TotalScore).First());
+			InterfaceManager.Instance.postgameUI.SetWinner(PlayerRegistry.OrderAsc(p => p.TotalScore).First());
 			UIScreen.Focus(InterfaceManager.Instance.postgameUI.screen);
 			Server_DelaySetState(EGameState.Pregame, 5);
 		};

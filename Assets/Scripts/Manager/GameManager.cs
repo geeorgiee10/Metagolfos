@@ -31,6 +31,8 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public int CurrentHole { get; set; }
 	[Networked]
 	public int TickStarted { get; set; }
+	[Networked]
+	public int SelectedVariant { get; set; }
 	public static float Time => Instance?.Object?.IsValid == true
 		? (Instance.TickStarted == 0 
 			? 0
@@ -73,7 +75,16 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public void OnSceneLoadDone(NetworkRunner runner)
 	{
 		if (runner.SimulationUnityScene.name == "Game")
-			Level.Load(ResourcesManager.Instance.levels[CurrentHole]);
+		{
+			
+			if (Runner.IsServer)
+			{
+				var variants = ResourcesManager.Instance.levels[CurrentHole].variants;
+				SelectedVariant = UnityEngine.Random.Range(0, variants.Count);
+			}
+
+			Level.Load();
+		}
 	}
 
 	[Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
@@ -85,7 +96,7 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 	public static void PlayerDNF(PlayerObject player)
 	{
 		player.TimeTaken = PlayerObject.TIME_DNF;
-		player.Strokes = int.MaxValue;
+		player.Strokes = MaxStrokes + 2;
 		Instance.Runner.Despawn(player.Controller.Object);
 
 		if (PlayerRegistry.All(p => p.HasFinished))
@@ -96,6 +107,47 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 	public static void CalculateScores()
 	{
+        // get orderings of fastest times and least strokes
+        PlayerObject[] speedOrder = PlayerRegistry.OrderAsc(p => p.TimeTaken, p => !p.IsSpectator).ToArray();
+        PlayerObject[] strokeOrder = PlayerRegistry.OrderAsc(p => p.Strokes, p => !p.IsSpectator).ToArray();
+
+        // get ranks for stroke counts -- the same stroke count is the same rank
+        byte[] strokeRanks = new byte[PlayerRegistry.CountPlayers];
+        int record = -1;
+        byte rank = 0;
+        for (int i = 0; i < PlayerRegistry.CountPlayers; i++)
+        {
+            PlayerObject p = strokeOrder[i];
+            if (p.Strokes > record)
+            {
+                record = p.Strokes;
+                rank++;
+            }
+            strokeRanks[i] = rank;
+        }
+
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            if (player.IsSpectator)
+                continue;
+
+            // Guardar directamente los golpes hechos en este hoyo
+            player.Scores.Set(Instance.CurrentHole, (byte)player.Strokes);
+        }
+
+        // Actualizar UI
+        InterfaceManager.Instance.resultsScreen.SetRoundScores();
+
+        if (!PlayerObject.Local.IsSpectator)
+        {
+            // get the ranks for the local player
+            int speedRank = speedOrder.FirstIndex(PlayerObject.Local) + 1;
+            int strokeRank = strokeRanks.ElementAt(strokeOrder.FirstIndex(PlayerObject.Local));
+
+            InterfaceManager.Instance.performance.SetTimesText(PlayerObject.Local.TimeTaken, speedRank);
+            InterfaceManager.Instance.performance.SetStrokesText(PlayerObject.Local.Strokes, strokeRank);
+        }
+        /* codigo anterior de suma de puntos con respecto al tiempo y los golpes, dejando el puntaje en cada PlayerObject.Scores[CurrentHole]
 		// get orderings of fastest times and least strokes
 		PlayerObject[] speedOrder = PlayerRegistry.OrderAsc(p => p.TimeTaken, p => !p.IsSpectator).ToArray();
 		PlayerObject[] strokeOrder = PlayerRegistry.OrderAsc(p => p.Strokes, p => !p.IsSpectator).ToArray();
@@ -148,10 +200,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 
 			InterfaceManager.Instance.performance.SetTimesText(PlayerObject.Local.TimeTaken, speedRank);
 			InterfaceManager.Instance.performance.SetStrokesText(PlayerObject.Local.Strokes, strokeRank);
-		}
-	}
+		}*/
+    }
 
-	public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
 	{
 		if (shutdownReason != ShutdownReason.Ok)
 			DisconnectUI.OnShutdown(shutdownReason);

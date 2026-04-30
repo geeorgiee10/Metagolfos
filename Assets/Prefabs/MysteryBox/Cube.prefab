@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 805453037220879569}
   - component: {fileID: 805453037220879407}
   - component: {fileID: 805453037220879406}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ GameObject:
   - component: {fileID: 805453037615563598}
   - component: {fileID: 805453037615563633}
   - component: {fileID: 805453037615563632}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -136,7 +136,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!114 &805453037615563633
 MonoBehaviour:
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 805453037622829694}
   - component: {fileID: 805453037622829692}
   - component: {fileID: 805453037622829695}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -403,7 +403,7 @@ GameObject:
   - component: {fileID: 805453038286814884}
   - component: {fileID: 805453038286814882}
   - component: {fileID: 805453038286814885}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -476,7 +476,7 @@ GameObject:
   - component: {fileID: 805453038627430696}
   - component: {fileID: 805453038627430694}
   - component: {fileID: 805453038627430697}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
