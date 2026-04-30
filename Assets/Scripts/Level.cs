@@ -9,13 +9,38 @@ public class Level : NetworkBehaviour
 
 	public float spawnHeight = 1f;
 
-	public static void Load(Level level)
+	public static void Load()
 	{
 		Unload();
-		if (GameManager.Instance.Runner.CanSpawn)
+
+		if (!GameManager.Instance.Runner.CanSpawn)
+			return;
+
+		var levels = ResourcesManager.Instance.levels;
+
+		int hole = GameManager.Instance.CurrentHole;
+
+		if (levels == null || hole < 0 || hole >= levels.Count)
 		{
-			GameManager.Instance.Runner.Spawn(ResourcesManager.Instance.levels[GameManager.Instance.CurrentHole]);
+			Debug.LogError($"Invalid hole index: {hole} / levels: {levels?.Count}");
+			return;
 		}
+
+		var variants = levels[hole].variants;
+
+		if (variants == null || variants.Count == 0)
+		{
+			Debug.LogError($"No variants for hole {hole}");
+			return;
+		}
+
+		int index = Mathf.Clamp(
+			GameManager.Instance.SelectedVariant,
+			0,
+			variants.Count - 1
+		);
+
+		GameManager.Instance.Runner.Spawn(variants[index]);
 	}
 
 	public static void Unload()
