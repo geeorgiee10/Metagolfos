@@ -126,10 +126,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SortKey: 3876124752
   ObjectInterest: 0
-  Flags: 2305
+  Flags: 264449
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 6965601329199848164}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &8316227299527605597
 GameObject:
   m_ObjectHideFlags: 0
