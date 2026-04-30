@@ -55,7 +55,7 @@ public class SessionSetup : MonoBehaviour
 	int _defaultShotsIndex = 5;
 	public static readonly (string k, int v)[] _shots = new (string, int)[]
 	{
-		( "5", 5 ), ( "8", 8 ), ( "10", 10 ), ( "15", 15 ), ( "20", 20 ), ( "No Limit", int.MaxValue )
+		( "5", 5 ), ( "8", 8 ), ( "10", 10 ), ( "15", 15 ), ( "20", 20 )
 	};
 
 	public void Init()
