@@ -43,12 +43,20 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
+	// [Header("Gravedad Sincronizada")]
+    [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
+    public float gravityForce = 19.62f;
+
 	private void LateUpdate()
 	{
 		if (CameraController.HasControl(this))
-		{
-			guideArrow.rotation = Quaternion.AngleAxis((float)yaw, Vector3.up);
-		}
+        {
+            // La flecha debe apuntar hacia adelante según el YAW, 
+            // pero su "UP" debe ser opuesto a la gravedad
+            Vector3 up = -LocalGravityDir;
+            Quaternion rotBase = Quaternion.LookRotation(Vector3.ProjectOnPlane(Vector3.forward, up), up);
+            guideArrow.rotation = rotBase * Quaternion.AngleAxis((float)yaw, Vector3.up);
+        }
 	}
 
 	//private void OnCollisionEnter(Collision collision)
@@ -73,13 +81,16 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		ren.material.color = PlayerObj.Color;
 
 		if (Object.HasInputAuthority)
-		{
 			CameraController.AssignControl(this);
-		}
 		else
-		{
 			Instantiate(ResourcesManager.Instance.worldNicknamePrefab, InterfaceManager.Instance.worldCanvas.transform).SetTarget(this);
-		}
+			
+		if (Object.HasStateAuthority)
+            LocalGravityDir = Vector3.down;
+        
+        traveller = GetComponent<PortalTraveller>();
+        if (traveller == null) traveller = gameObject.AddComponent<PortalTraveller>();
+        traveller.graphicsObject = ren.gameObject;
 	}
 
 	public override void Despawned(NetworkRunner runner, bool hasState)
@@ -208,6 +219,24 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 				}
 			}
 		}
+
+		if (rb != null)
+        {
+            rb.AddForce(LocalGravityDir * gravityForce, ForceMode.Acceleration);
+        }
+
+        // ... Tu código de fricción/speedLoss ...
+        // MODIFICACIÓN IMPORTANTE: La fricción solo debe actuar en el plano perpendicular a la gravedad
+        if (IsGrounded() && rb.velocity.sqrMagnitude > 0.00001f)
+        {
+            // Proyectamos la velocidad en el plano del suelo para no frenar la caída
+            Vector3 velPlano = Vector3.ProjectOnPlane(rb.velocity, LocalGravityDir);
+            Vector3 nuevaVelPlano = Vector3.MoveTowards(velPlano, Vector3.zero, Runner.DeltaTime * speedLoss);
+            
+            // Recomponemos la velocidad manteniendo la vertical
+            Vector3 velVertical = Vector3.Project(rb.velocity, LocalGravityDir);
+            rb.velocity = nuevaVelPlano + velVertical;
+        }
 	}
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -220,11 +249,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
 	}
 
-	bool IsGrounded()
-	{
-		return Physics.OverlapSphere(transform.position, collider.radius * 1.05f,
-			LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore).Length > 0;
-	}
+	bool IsGrounded() => Physics.Raycast(transform.position, LocalGravityDir, collider.radius * 1.1f, 
+            LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
 	
 	public Vector3 Position => interpolationTarget.position;
 	public void ControlCamera(ref float pitch, ref float yaw)
