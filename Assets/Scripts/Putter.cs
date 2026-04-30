@@ -40,6 +40,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	Angle yaw = default;
 
 	bool isFirstUpdate = true;
+	
+    protected PortalTraveller traveller;
 
 	private void LateUpdate()
 	{
