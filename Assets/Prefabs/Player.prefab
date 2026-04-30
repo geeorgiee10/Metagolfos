@@ -190,7 +190,7 @@ GameObject:
   - component: {fileID: 6588710689054171440}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -284,6 +284,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4529645544484441695}
   - {fileID: 6588710689054171440}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &6588710689054171440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a591d221a634417e9827eb58e17de84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
   SyncScale: 0
   SyncParent: 0
   _interpolationTarget: {fileID: 1777857619219792223}
