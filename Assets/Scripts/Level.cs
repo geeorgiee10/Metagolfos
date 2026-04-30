@@ -16,11 +16,29 @@ public class Level : NetworkBehaviour
 		if (!GameManager.Instance.Runner.CanSpawn)
 			return;
 
-		var variants = ResourcesManager.Instance
-			.levels[GameManager.Instance.CurrentHole]
-			.variants;
+		var levels = ResourcesManager.Instance.levels;
 
-		int index = GameManager.Instance.SelectedVariant;
+		int hole = GameManager.Instance.CurrentHole;
+
+		if (levels == null || hole < 0 || hole >= levels.Count)
+		{
+			Debug.LogError($"Invalid hole index: {hole} / levels: {levels?.Count}");
+			return;
+		}
+
+		var variants = levels[hole].variants;
+
+		if (variants == null || variants.Count == 0)
+		{
+			Debug.LogError($"No variants for hole {hole}");
+			return;
+		}
+
+		int index = Mathf.Clamp(
+			GameManager.Instance.SelectedVariant,
+			0,
+			variants.Count - 1
+		);
 
 		GameManager.Instance.Runner.Spawn(variants[index]);
 	}

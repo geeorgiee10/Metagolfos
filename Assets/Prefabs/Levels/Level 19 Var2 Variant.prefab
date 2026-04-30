@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Level 19 Var2 Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3294988334895629205, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4817003850444776343, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_Enabled
       value: 0
