@@ -184,6 +184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4529645544484441692}
   - component: {fileID: 4529645544484441689}
+  - component: {fileID: 3484337717073387178}
   - component: {fileID: 4529645544484441694}
   - component: {fileID: 4529645544484441695}
   - component: {fileID: 925218551095575575}
@@ -227,6 +228,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
+--- !u!114 &3484337717073387178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4529645544484441693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 906cf3fd207e5450784f73a2d4b57b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphicsObject: {fileID: 962998844038712070}
 --- !u!135 &4529645544484441694
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -372,6 +386,11 @@ PrefabInstance:
 --- !u!4 &438699591068176828 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 70f319e5e212b054c85b5176c6ecb053, type: 3}
+  m_PrefabInstance: {fileID: 116015559258617431}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &962998844038712070 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 70f319e5e212b054c85b5176c6ecb053, type: 3}
   m_PrefabInstance: {fileID: 116015559258617431}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &1611653322901924563 stripped
