@@ -105,11 +105,20 @@ public class CameraController : MonoBehaviour
 		yaw = Mathf.Repeat(yaw + 180, 360) - 180;
 		pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
 
-		Quaternion orientation = Quaternion.Euler(pitch, yaw, 0);
-		Vector3 fwd = orientation * Vector3.forward;
-		Vector3 up = orientation * Vector3.up;
-		transform.position = con.Position - fwd * distance;
-		transform.LookAt(con.Position + Vector3.up * lookHeightOffset * distance.Remap(minDistance, maxDistance, 0.25f, 2));
+		Vector3 up = con.Up;
+
+		// rotación relativa al "up" dinámico
+		Quaternion yawRot = Quaternion.AngleAxis(yaw, up);
+		Vector3 right = Vector3.Cross(up, yawRot * Vector3.forward);
+		Quaternion pitchRot = Quaternion.AngleAxis(pitch, right);
+
+		Vector3 forward = pitchRot * (yawRot * Vector3.forward);
+
+		transform.position = con.Position - forward * distance;
+
+		Vector3 lookTarget = con.Position + up * lookHeightOffset * distance.Remap(minDistance, maxDistance, 0.25f, 2);
+
+		transform.rotation = Quaternion.LookRotation(lookTarget - transform.position, up);
 
 		ParticleSystem.MainModule main = speedLines.main;
 		main.startSpeed = speedLinesSpeedCurve.Evaluate(Vector3.Distance(con.Position, cachedPosition) / Time.deltaTime);

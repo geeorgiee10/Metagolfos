@@ -16,16 +16,31 @@ public class PortalTraveller : MonoBehaviour {
 
         Vector3 oldVelocity = rb.velocity;
 
-        // Transformar posición y rotación
+        // --- POSICIÓN Y ROTACIÓN ---
         transform.position = pos;
         transform.rotation = rot;
 
-        // 🔥 Transformar la velocidad al espacio del otro portal
+        // --- VELOCIDAD ---
         Vector3 newVelocity = toPortal.TransformDirection(
             fromPortal.InverseTransformDirection(oldVelocity)
         );
 
         rb.velocity = newVelocity;
+
+        // --- GRAVEDAD (SOLO SI ES PUTTER) ---
+        Putter putter = GetComponent<Putter>();
+        if (putter != null)
+        {
+            Vector3 oldGravity = putter.LocalGravityDir;
+
+            // transformar gravedad igual que la velocidad
+            Vector3 newGravity = toPortal.TransformDirection(
+                fromPortal.InverseTransformDirection(oldGravity)
+            );
+
+            // aplicar en red correctamente
+            putter.Rpc_SetGravity(newGravity);
+        }
     }
 
     // Called when first touches portal

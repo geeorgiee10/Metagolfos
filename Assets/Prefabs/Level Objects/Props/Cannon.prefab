@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17c0837ab49d9f249a656bc053cca6dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strength: 4
+  strength: 6
   interval: 3
   offset: 0
   checkPos: {fileID: 6047506769745420739}
@@ -873,3 +873,4 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7321945046417316792}
+  ForceRemoteRenderTimeframe: 0
