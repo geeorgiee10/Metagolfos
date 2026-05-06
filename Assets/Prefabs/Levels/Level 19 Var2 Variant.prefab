@@ -11,13 +11,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Level 19 Var2 Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2289457913814197528, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: SortKey
+      value: 3426488518
+      objectReference: {fileID: 0}
     - target: {fileID: 3294988334895629205, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4761486709918899392, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: SortKey
+      value: 4014799705
+      objectReference: {fileID: 0}
     - target: {fileID: 4817003850444776343, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6728139482269684531, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: SortKey
+      value: 2402080909
       objectReference: {fileID: 0}
     - target: {fileID: 8394820880530657489, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_RootOrder
