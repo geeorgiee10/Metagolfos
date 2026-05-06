@@ -220,6 +220,25 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 				}
 			}
 		}
+        /*if (Object.HasInputAuthority)
+        {
+            // Tecla F: Volver al inicio del nivel
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TeleportBall(initialPosition);
+            }
+            // Tecla R: Volver al tiro anterior (si existe)
+            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+            {
+                TeleportBall(lastPuttPosition);
+            }
+        }*/
+    }
+
+    void Update()
+    {
+		if(!Object.HasInputAuthority) return;
+
         if (Object.HasInputAuthority)
         {
             // Tecla F: Volver al inicio del nivel
@@ -235,7 +254,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         }
     }
 
-	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
