@@ -5,7 +5,12 @@ using Fusion;
 
 public class Putter : NetworkBehaviour, ICanControlCamera
 {
-	public Transform interpolationTarget;
+	[Header("References Spawn")]
+    private Vector3 initialPosition;
+    private Vector3 lastPuttPosition;
+    private bool hasLastPuttPosition = false;
+
+    public Transform interpolationTarget;
 	public Transform guideArrow;
 	public MeshRenderer guideArrowRen;
 	public MeshRenderer ren;
@@ -67,7 +72,11 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void Spawned()
 	{
-		PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
+        // Spawn position
+        initialPosition = transform.position;
+        lastPuttPosition = initialPosition;
+
+        PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
 
 		ren.material.color = PlayerObj.Color;
@@ -130,7 +139,10 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			{
 				if (CanPutt && PuttStrength > 0)
 				{
-					Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+                    lastPuttPosition = rb.position;
+                    hasLastPuttPosition = true;
+
+                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
 
 					if (IsGrounded())
 					{
@@ -208,7 +220,20 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 				}
 			}
 		}
-	}
+        if (Object.HasInputAuthority)
+        {
+            // Tecla F: Volver al inicio del nivel
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TeleportBall(initialPosition);
+            }
+            // Tecla R: Volver al tiro anterior (si existe)
+            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+            {
+                TeleportBall(lastPuttPosition);
+            }
+        }
+    }
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
 	public void Rpc_Respawn(bool effect)
@@ -217,10 +242,19 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		if (Object.HasInputAuthority) CameraController.Recenter();
 
 		rb.velocity = rb.angularVelocity = Vector3.zero;
-		rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
+		TeleportBall(lastPuttPosition);
+		//rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
 	}
 
-	bool IsGrounded()
+    private void TeleportBall(Vector3 targetPosition)
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        rb.MovePosition(targetPosition);
+    }
+
+    bool IsGrounded()
 	{
 		return Physics.OverlapSphere(transform.position, collider.radius * 1.05f,
 			LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore).Length > 0;

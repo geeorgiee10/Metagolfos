@@ -61,7 +61,7 @@ public class ResultsScreenUI : MonoBehaviour
 			kvp.Value.SetScoreItem(hole, PlayerRegistry.GetPlayer(kvp.Key).Scores[hole]);
 		}
 
-		PlayerRegistry.OrderDesc(p => p.TotalScore)
+		PlayerRegistry.OrderAsc(p => p.TotalScore)
 			.Select(p => playerScoreItems.First(s => s.Key == p.Ref).Value)
 			.ForEach((p, i) => p.SetPlacement(i + 1));
 	}
