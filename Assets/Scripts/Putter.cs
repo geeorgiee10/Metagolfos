@@ -338,8 +338,9 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		// 	Rpc_SetGravity(Vector3.back);
 			
     }
+	
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);

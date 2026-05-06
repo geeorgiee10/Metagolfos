@@ -6,9 +6,9 @@ PhysicMaterial:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Green
-  dynamicFriction: 0.2
-  staticFriction: 0
-  bounciness: 0.1
-  frictionCombine: 0
-  bounceCombine: 0
+  m_Name: sand
+  dynamicFriction: 0.9
+  staticFriction: 1
+  bounciness: 0
+  frictionCombine: 3
+  bounceCombine: 1
