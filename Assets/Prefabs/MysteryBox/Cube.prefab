@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 805453037220879569}
   - component: {fileID: 805453037220879407}
   - component: {fileID: 805453037220879406}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,9 @@ GameObject:
   - component: {fileID: 805453037615563598}
   - component: {fileID: 805453037615563633}
   - component: {fileID: 805453037615563632}
-  m_Layer: 5
+  - component: {fileID: 7108645051216723431}
+  - component: {fileID: 7786742730759179224}
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -136,7 +138,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10000
   m_TargetDisplay: 0
 --- !u!114 &805453037615563633
 MonoBehaviour:
@@ -178,6 +180,44 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!222 &7108645051216723431
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805453037615563634}
+  m_CullTransparentMesh: 1
+--- !u!114 &7786742730759179224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805453037615563634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &805453037622829665
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,7 +229,7 @@ GameObject:
   - component: {fileID: 805453037622829694}
   - component: {fileID: 805453037622829692}
   - component: {fileID: 805453037622829695}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -266,6 +306,7 @@ GameObject:
   - component: {fileID: 805453038104283829}
   - component: {fileID: 805453038104283828}
   - component: {fileID: 805453038104283831}
+  - component: {fileID: -5081905588917160072}
   m_Layer: 0
   m_Name: Cube
   m_TagString: MysteryBox
@@ -392,6 +433,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09cc642c637c6844e888140a83a69446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-5081905588917160072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 805453038104283830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 2370992943
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours: []
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &805453038286814887
 GameObject:
   m_ObjectHideFlags: 0
@@ -403,7 +462,7 @@ GameObject:
   - component: {fileID: 805453038286814884}
   - component: {fileID: 805453038286814882}
   - component: {fileID: 805453038286814885}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -476,7 +535,7 @@ GameObject:
   - component: {fileID: 805453038627430696}
   - component: {fileID: 805453038627430694}
   - component: {fileID: 805453038627430697}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RawImage (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

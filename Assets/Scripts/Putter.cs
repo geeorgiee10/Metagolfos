@@ -5,7 +5,12 @@ using Fusion;
 
 public class Putter : NetworkBehaviour, ICanControlCamera
 {
-	public Transform interpolationTarget;
+	[Header("References Spawn")]
+    private Vector3 initialPosition;
+    private Vector3 lastPuttPosition;
+    private bool hasLastPuttPosition = false;
+
+    public Transform interpolationTarget;
 	public Transform guideArrow;
 	public MeshRenderer guideArrowRen;
 	public MeshRenderer ren;
@@ -75,7 +80,11 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void Spawned()
 	{
-		PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
+        // Spawn position
+        initialPosition = transform.position;
+        lastPuttPosition = initialPosition;
+
+        PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
 
 		ren.material.color = PlayerObj.Color;
@@ -141,7 +150,10 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			{
 				if (CanPutt && PuttStrength > 0)
 				{
-					Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+                    lastPuttPosition = rb.position;
+                    hasLastPuttPosition = true;
+
+                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
 
 					if (IsGrounded())
 					{
@@ -219,38 +231,64 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 				}
 			}
 		}
-
-		if (rb != null)
+        /*if (Object.HasInputAuthority)
         {
-            rb.AddForce(LocalGravityDir * gravityForce, ForceMode.Acceleration);
-        }
+            // Tecla F: Volver al inicio del nivel
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TeleportBall(initialPosition);
+            }
+            // Tecla R: Volver al tiro anterior (si existe)
+            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+            {
+                TeleportBall(lastPuttPosition);
+            }
+        }*/
+    }
 
-        // ... Tu código de fricción/speedLoss ...
-        // MODIFICACIÓN IMPORTANTE: La fricción solo debe actuar en el plano perpendicular a la gravedad
-        if (IsGrounded() && rb.velocity.sqrMagnitude > 0.00001f)
+    void Update()
+    {
+		if(!Object.HasInputAuthority) return;
+
+        if (Object.HasInputAuthority)
         {
-            // Proyectamos la velocidad en el plano del suelo para no frenar la caída
-            Vector3 velPlano = Vector3.ProjectOnPlane(rb.velocity, LocalGravityDir);
-            Vector3 nuevaVelPlano = Vector3.MoveTowards(velPlano, Vector3.zero, Runner.DeltaTime * speedLoss);
-            
-            // Recomponemos la velocidad manteniendo la vertical
-            Vector3 velVertical = Vector3.Project(rb.velocity, LocalGravityDir);
-            rb.velocity = nuevaVelPlano + velVertical;
+            // Tecla F: Volver al inicio del nivel
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TeleportBall(initialPosition);
+            }
+            // Tecla R: Volver al tiro anterior (si existe)
+            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+            {
+                TeleportBall(lastPuttPosition);
+            }
         }
-	}
+    }
 
-	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
 		if (Object.HasInputAuthority) CameraController.Recenter();
 
 		rb.velocity = rb.angularVelocity = Vector3.zero;
-		rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
+		TeleportBall(lastPuttPosition);
+		//rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
 	}
 
-	bool IsGrounded() => Physics.Raycast(transform.position, LocalGravityDir, collider.radius * 1.1f, 
-            LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore);
+    private void TeleportBall(Vector3 targetPosition)
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        rb.MovePosition(targetPosition);
+    }
+
+    bool IsGrounded()
+	{
+		return Physics.OverlapSphere(transform.position, collider.radius * 1.05f,
+			LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore).Length > 0;
+	}
 	
 	public Vector3 Position => interpolationTarget.position;
 	public void ControlCamera(ref float pitch, ref float yaw)
