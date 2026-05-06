@@ -154,6 +154,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			{
 				if (CanPutt && PuttStrength > 0)
 				{
+					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
+					{
+						GameManager.PlayerDNF(PlayerObj);
+						return;
+					}
+
                     lastPuttPosition = rb.position;
                     hasLastPuttPosition = true;
 
