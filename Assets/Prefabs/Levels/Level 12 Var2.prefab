@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 6965601329199848164}
   - component: {fileID: 742380000040923537}
   m_Layer: 0
-  m_Name: Level 12
+  m_Name: Level 12 Var2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 3876124752
+  SortKey: 2389983541
   ObjectInterest: 0
   Flags: 264449
   NestedObjects: []
@@ -744,6 +744,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8316227299527605598}
     m_Modifications:
+    - target: {fileID: 5428619514679623932, guid: c3c46fef762ec284ea1944a842f46326, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: d37e5eda29069014598723806d66d193, type: 2}
     - target: {fileID: 5789000050916204841, guid: c3c46fef762ec284ea1944a842f46326, type: 3}
       propertyPath: m_Name
       value: holeOpen
@@ -792,6 +796,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8348682565508204146, guid: c3c46fef762ec284ea1944a842f46326, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 185cf60b49fff1b44bd3da2c92067d0e, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3c46fef762ec284ea1944a842f46326, type: 3}
 --- !u!4 &4775084822378368477 stripped

@@ -5,7 +5,12 @@ using Fusion;
 
 public class Putter : NetworkBehaviour, ICanControlCamera
 {
-	public Transform interpolationTarget;
+	[Header("References Spawn")]
+    private Vector3 initialPosition;
+    private Vector3 lastPuttPosition;
+    private bool hasLastPuttPosition = false;
+
+    public Transform interpolationTarget;
 	public Transform guideArrow;
 	public MeshRenderer guideArrowRen;
 	public MeshRenderer ren;
@@ -43,12 +48,20 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
+	// [Header("Gravedad Sincronizada")]
+    [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
+    public float gravityForce = 8.8f;
+
 	private void LateUpdate()
 	{
 		if (CameraController.HasControl(this))
-		{
-			guideArrow.rotation = Quaternion.AngleAxis((float)yaw, Vector3.up);
-		}
+        {
+            // La flecha debe apuntar hacia adelante según el YAW, 
+            // pero su "UP" debe ser opuesto a la gravedad
+            Vector3 up = -LocalGravityDir;
+            Quaternion rotBase = Quaternion.LookRotation(Vector3.ProjectOnPlane(Vector3.forward, up), up);
+            guideArrow.rotation = rotBase * Quaternion.AngleAxis((float)yaw, Vector3.up);
+        }
 	}
 
 	//private void OnCollisionEnter(Collision collision)
@@ -67,19 +80,30 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void Spawned()
 	{
-		PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
+        // Spawn position
+        initialPosition = transform.position;
+        lastPuttPosition = initialPosition;
+
+        PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
 
 		ren.material.color = PlayerObj.Color;
 
 		if (Object.HasInputAuthority)
-		{
 			CameraController.AssignControl(this);
-		}
 		else
-		{
 			Instantiate(ResourcesManager.Instance.worldNicknamePrefab, InterfaceManager.Instance.worldCanvas.transform).SetTarget(this);
-		}
+			
+		if (Object.HasStateAuthority)
+            LocalGravityDir = Vector3.down;
+
+
+		rb.useGravity = false;
+		rb.sleepThreshold = 0.01f;
+        
+        traveller = GetComponent<PortalTraveller>();
+        if (traveller == null) traveller = gameObject.AddComponent<PortalTraveller>();
+        traveller.graphicsObject = ren.gameObject;
 	}
 
 	public override void Despawned(NetworkRunner runner, bool hasState)
@@ -130,7 +154,16 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			{
 				if (CanPutt && PuttStrength > 0)
 				{
-					Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
+					{
+						GameManager.PlayerDNF(PlayerObj);
+						return;
+					}
+
+                    lastPuttPosition = rb.position;
+                    hasLastPuttPosition = true;
+
+                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
 
 					if (IsGrounded())
 					{
@@ -195,35 +228,161 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			isFirstUpdate = false;
 		}
 
-		if (IsGrounded() && rb.velocity.sqrMagnitude > 0.00001f)
+		if (IsGrounded())
 		{
-			rb.velocity = Vector3.MoveTowards(rb.velocity, Vector3.zero, Time.fixedDeltaTime * speedLoss);
-			if (rb.velocity.sqrMagnitude <= 0.00001f)
-			{
+			Vector3 gravityDir = LocalGravityDir.normalized;
 
-				if (PlayerObj.Strokes >= GameManager.MaxStrokes)
-				{
-					Debug.Log("Out of strokes");
-					GameManager.PlayerDNF(PlayerObj);
-				}
+			// separar velocidad en vertical + horizontal
+			Vector3 verticalVel = Vector3.Project(rb.velocity, gravityDir);
+			Vector3 horizontalVel = rb.velocity - verticalVel;
+
+			// frenar SOLO en plano del suelo
+			horizontalVel = Vector3.MoveTowards(horizontalVel, Vector3.zero, Time.fixedDeltaTime * speedLoss);
+
+			rb.velocity = horizontalVel + verticalVel;
+
+			// dormir si está prácticamente parado
+			if (horizontalVel.sqrMagnitude < 0.0001f && verticalVel.sqrMagnitude < 0.0001f)
+			{
+				rb.velocity = Vector3.zero;
 			}
+		}
+        /*if (Object.HasInputAuthority)
+        {
+            // Tecla F: Volver al inicio del nivel
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TeleportBall(initialPosition);
+            }
+            // Tecla R: Volver al tiro anterior (si existe)
+            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+            {
+                TeleportBall(lastPuttPosition);
+            }
+        }*/
+
+		// --- GRAVEDAD POR JUGADOR (ESTABLE) ---
+		if (Object.HasStateAuthority)
+		{
+			Vector3 gravityDir = LocalGravityDir.normalized;
+
+			if (!IsGrounded())
+			{
+				rb.AddForce(gravityDir * gravityForce, ForceMode.Acceleration);
+			}
+			else
+			{
+				// mantener pegado al suelo sin rebotes
+				rb.AddForce(gravityDir * gravityForce * 0.2f, ForceMode.Acceleration);
+			}
+		}
+    }
+
+	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+	public void Rpc_SetGravity(Vector3 newGravity)
+	{
+		LocalGravityDir = newGravity.normalized;
+
+		rb.angularVelocity = Vector3.zero;
+
+		Rpc_OnGravityChanged(LocalGravityDir);
+	}
+
+	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+	void Rpc_OnGravityChanged(Vector3 newGravity)
+	{
+		if (!Object.HasInputAuthority) return;
+
+		Vector3 up = -newGravity;
+
+		Transform cam = CameraController.Instance.transform;
+
+		Vector3 forwardProjected = Vector3.ProjectOnPlane(cam.forward, up);
+
+		if (forwardProjected.sqrMagnitude < 0.001f)
+			forwardProjected = Vector3.ProjectOnPlane(cam.up, up);
+
+		Quaternion targetRot = Quaternion.LookRotation(forwardProjected, up);
+
+		cam.rotation = targetRot;
+	}
+
+    void Update()
+    {
+		if (!Object.HasInputAuthority) return;
+
+		if (Input.GetKeyDown(KeyCode.F))
+		{
+			Rpc_BackBall(true);
+		}
+		else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+		{
+			Rpc_BackBall(false);
+		}
+
+		// if (Input.GetKeyDown(KeyCode.Alpha1))
+		// 	Rpc_SetGravity(Vector3.down);
+			
+		// if (Input.GetKeyDown(KeyCode.Alpha2))
+		// 	Rpc_SetGravity(Vector3.up);
+			
+		// if (Input.GetKeyDown(KeyCode.Alpha3))
+		// 	Rpc_SetGravity(Vector3.left);
+			
+		// if (Input.GetKeyDown(KeyCode.Alpha4))
+		// 	Rpc_SetGravity(Vector3.right);
+			
+		// if (Input.GetKeyDown(KeyCode.Alpha5))
+		// 	Rpc_SetGravity(Vector3.forward);
+			
+		// if (Input.GetKeyDown(KeyCode.Alpha6))
+		// 	Rpc_SetGravity(Vector3.back);
+			
+    }
+
+	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+	public void Rpc_BackBall(bool toInitial)
+	{
+		if (toInitial)
+		{
+			TeleportBall(initialPosition);
+		}
+		else if (hasLastPuttPosition)
+		{
+			TeleportBall(lastPuttPosition);
 		}
 	}
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+
+	
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
 		if (Object.HasInputAuthority) CameraController.Recenter();
 
 		rb.velocity = rb.angularVelocity = Vector3.zero;
-		rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
+		TeleportBall(lastPuttPosition);
+		//rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
 	}
 
-	bool IsGrounded()
+    private void TeleportBall(Vector3 targetPosition)
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        rb.MovePosition(targetPosition);
+    }
+
+    bool IsGrounded()
 	{
-		return Physics.OverlapSphere(transform.position, collider.radius * 1.05f,
-			LayerMask.GetMask("Default"), QueryTriggerInteraction.Ignore).Length > 0;
+		Vector3 dir = LocalGravityDir.normalized;
+
+		return Physics.Raycast(
+			transform.position,
+			dir,
+			collider.radius * 1.1f
+		);
 	}
 	
 	public Vector3 Position => interpolationTarget.position;
@@ -235,4 +394,6 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		}
 		yaw += Input.GetAxis("Mouse X");
 	}
+
+	public Vector3 Up => -LocalGravityDir;
 }

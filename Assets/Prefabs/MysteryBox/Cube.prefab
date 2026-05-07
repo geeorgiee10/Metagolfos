@@ -85,8 +85,6 @@ GameObject:
   - component: {fileID: 805453037615563598}
   - component: {fileID: 805453037615563633}
   - component: {fileID: 805453037615563632}
-  - component: {fileID: 7108645051216723431}
-  - component: {fileID: 7786742730759179224}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -138,7 +136,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10000
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!114 &805453037615563633
 MonoBehaviour:
