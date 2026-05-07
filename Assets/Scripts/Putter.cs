@@ -154,6 +154,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			{
 				if (CanPutt && PuttStrength > 0)
 				{
+					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
+					{
+						GameManager.PlayerDNF(PlayerObj);
+						return;
+					}
+
                     lastPuttPosition = rb.position;
                     hasLastPuttPosition = true;
 
@@ -303,21 +309,16 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
     void Update()
     {
-		if(!Object.HasInputAuthority) return;
+		if (!Object.HasInputAuthority) return;
 
-        if (Object.HasInputAuthority)
-        {
-            // Tecla F: Volver al inicio del nivel
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                TeleportBall(initialPosition);
-            }
-            // Tecla R: Volver al tiro anterior (si existe)
-            else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
-            {
-                TeleportBall(lastPuttPosition);
-            }
-        }
+		if (Input.GetKeyDown(KeyCode.F))
+		{
+			Rpc_BackBall(true);
+		}
+		else if (Input.GetKeyDown(KeyCode.R) && hasLastPuttPosition)
+		{
+			Rpc_BackBall(false);
+		}
 
 		// if (Input.GetKeyDown(KeyCode.Alpha1))
 		// 	Rpc_SetGravity(Vector3.down);
@@ -338,9 +339,23 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		// 	Rpc_SetGravity(Vector3.back);
 			
     }
-	
+
+	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+	public void Rpc_BackBall(bool toInitial)
+	{
+		if (toInitial)
+		{
+			TeleportBall(initialPosition);
+		}
+		else if (hasLastPuttPosition)
+		{
+			TeleportBall(lastPuttPosition);
+		}
+	}
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+
+	
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
