@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4494140824504976938, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+      propertyPath: holePosition
+      value: 
+      objectReference: {fileID: 4580308477731327385}
     - target: {fileID: 4494140824504976943, guid: b836924dde481bd46ad62ae21694956b, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.188
@@ -94,6 +98,11 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 2293070590340209567, guid: b836924dde481bd46ad62ae21694956b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+--- !u!4 &4580308477731327385 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4536611108257203153, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+  m_PrefabInstance: {fileID: 100699388072021576}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4962809330930878064 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5024523246561708088, guid: b836924dde481bd46ad62ae21694956b, type: 3}
