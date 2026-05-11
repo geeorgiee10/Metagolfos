@@ -7,7 +7,8 @@ using Random = UnityEngine.Random;
 
 public class RandomPerk : MonoBehaviour
 {
-    private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
+    //private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
+    private String[] abilities = { "SuperHit", "Freeze" };
     [SerializeField] private Transform holePosition;
     private void OnCollisionEnter(Collision other)
     {
@@ -20,7 +21,8 @@ public class RandomPerk : MonoBehaviour
             {
                 case "SuperHit":
                     //Activar buff
-                    
+                    Debug.Log("SuperHit activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    superHit(other.gameObject);
                     break;
 
                 case "Intangible":
@@ -30,7 +32,8 @@ public class RandomPerk : MonoBehaviour
 
                 case "Freeze":
                     //Activar buff
-                    //other.gameObject.GetComponent<Player>().Under5s;
+                    Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    Freeze(other.gameObject);
                     break;
                 case "Teleport":
                     //Activar buff
@@ -48,10 +51,31 @@ public class RandomPerk : MonoBehaviour
                 
                 
             }
-            Destroy(this.gameObject);
+            //Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
-    
+    private IEnumerator Freeze(GameObject gameObject)
+    {
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            if (player.Nickname == gameObject.GetComponent<Putter>().nombre)
+            {
+                Debug.Log("if Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
+                continue;
+            }
+            Debug.Log("Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
+            player.Controller.freeze = true;
+        }
+
+        yield return new WaitForSeconds(5f);
+
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            player.Controller.freeze = false;
+        }
+    }
+
     private IEnumerator Intangible(GameObject gameObject)
     {
         if (gameObject.GetComponent<SphereCollider>() != null)
@@ -84,6 +108,12 @@ public class RandomPerk : MonoBehaviour
             buffTime = 0;
         }
         yield return null;
+    }
+
+    private void superHit(GameObject gameObject)
+    {
+        gameObject.GetComponent<Putter>().maxPuttStrength = 20;
+        Debug.Log("SuperHit: " + gameObject.name + "fuerza" + gameObject.GetComponent<Putter>().maxPuttStrength);
     }
 }
 
