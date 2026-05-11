@@ -394,6 +394,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
     }
     private IEnumerator SuperStar()
     {
+	    superstar = true;
 	    MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
 	    if (mr != null)
 	    {
@@ -410,6 +411,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 		    mr.material.color = originalColor;
 	    }
+	    superstar = false;
 	    yield return null;
     }
 
