@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public class RandomPerk : MonoBehaviour
+public class RandomPerk : NetworkBehaviour
 {
     private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
     [SerializeField] private Transform holePosition;
@@ -51,7 +52,7 @@ public class RandomPerk : MonoBehaviour
                 
                 
             }
-            Destroy(this.gameObject);
+            Runner.Despawn(Object);
         }
     }
 }
