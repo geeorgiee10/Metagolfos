@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8525899625252362697}
   - component: {fileID: 6127810517129711412}
   m_Layer: 0
-  m_Name: Level 1
+  m_Name: Level 1 Var1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 2018078880
+  SortKey: 110285847
   ObjectInterest: 0
   Flags: 264449
   NestedObjects: []

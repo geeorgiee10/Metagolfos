@@ -279,6 +279,8 @@ MonoBehaviour:
   shakeCollisionAmount: 0.75
   shakeCollisionLambda: 10
   couldPutt: 0
+  _LocalGravityDir: {x: 0, y: -1, z: 0}
+  gravityForce: 8.8
 --- !u!114 &925218551095575575
 MonoBehaviour:
   m_ObjectHideFlags: 0

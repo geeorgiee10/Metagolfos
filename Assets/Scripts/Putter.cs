@@ -62,8 +62,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
             // La flecha debe apuntar hacia adelante según el YAW, 
             // pero su "UP" debe ser opuesto a la gravedad
             Vector3 up = -LocalGravityDir;
-            Quaternion rotBase = Quaternion.LookRotation(Vector3.ProjectOnPlane(Vector3.forward, up), up);
-            guideArrow.rotation = rotBase * Quaternion.AngleAxis((float)yaw, Vector3.up);
+            Vector3 dir = Vector3.ProjectOnPlane(
+				CameraController.Instance.transform.forward,
+				LocalGravityDir
+			).normalized;
+
+			guideArrow.rotation = Quaternion.LookRotation(dir, up);
         }
 	}
 
@@ -178,16 +182,18 @@ public class Putter : NetworkBehaviour, ICanControlCamera
                     lastPuttPosition = rb.position;
                     hasLastPuttPosition = true;
 
-                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+                    Vector3 up = -LocalGravityDir.normalized;
+
+					// dirección de cámara sobre el plano del suelo actual
+					Vector3 fwd = Vector3.ProjectOnPlane(
+						CameraController.Instance.transform.forward,
+						LocalGravityDir
+					).normalized;
 
 					if (IsGrounded())
-					{
 						rb.AddForce(fwd * PuttStrength, ForceMode.VelocityChange);
-					}
 					else
-					{
 						rb.velocity = fwd * PuttStrength;
-					}
 
 					PuttTimer = TickTimer.CreateFromSeconds(Runner, 3);
 					PlayerObj.Strokes++;
