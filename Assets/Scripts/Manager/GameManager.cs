@@ -81,9 +81,10 @@ public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
 			{
 				var variants = ResourcesManager.Instance.levels[CurrentHole].variants;
 				SelectedVariant = UnityEngine.Random.Range(0, variants.Count);
+				
+				Level.Load();
 			}
 
-			Level.Load();
 		}
 	}
 

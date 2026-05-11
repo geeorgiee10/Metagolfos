@@ -11,10 +11,10 @@ public class Level : NetworkBehaviour
 
 	public static void Load()
 	{
-		Unload();
+		if (!GameManager.Instance.Runner.IsServer)
+        	return;
 
-		if (!GameManager.Instance.Runner.CanSpawn)
-			return;
+		Unload();
 
 		var levels = ResourcesManager.Instance.levels;
 
