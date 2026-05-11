@@ -24,8 +24,9 @@ public class RandomPerk : MonoBehaviour
                     break;
 
                 case "Intangible":
-                   //Activar buff
-                    StartCoroutine(Intangible(other.gameObject));
+                    //Activar buff
+                    if(other.gameObject.GetComponent<Putter>()!=null)
+                        other.gameObject.GetComponent<Putter>().startIntangible();
                     break;
 
                 case "Freeze":
@@ -34,12 +35,14 @@ public class RandomPerk : MonoBehaviour
                     break;
                 case "Teleport":
                     //Activar buff
-                    other.gameObject.transform.position = holePosition.position;
+                    Vector3 positionOffset = new Vector3(0, 1, 0);
+                    other.gameObject.transform.position = holePosition.position + positionOffset;
                     other.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     break;
                 case "SuperStar":
                     //Activar buff
-                    StartCoroutine(SuperStar(other.gameObject));
+                    if(other.gameObject.GetComponent<Putter>()!=null)
+                        other.gameObject.GetComponent<Putter>().startSuperstar();
                     break;
                 case "MagneticField":
                     //Activar buff
@@ -50,40 +53,6 @@ public class RandomPerk : MonoBehaviour
             }
             Destroy(this.gameObject);
         }
-    }
-    
-    private IEnumerator Intangible(GameObject gameObject)
-    {
-        if (gameObject.GetComponent<SphereCollider>() != null)
-        {
-            gameObject.GetComponent<SphereCollider>().isTrigger = true;
-            yield return new WaitForSeconds(8f);
-            gameObject.GetComponent<SphereCollider>().isTrigger = false;
-        }
-    }
-
-    private IEnumerator SuperStar(GameObject gameObject)
-    {
-        if (gameObject.GetComponent<MeshRenderer>() != null)
-        {
-            Color originalColor = gameObject.GetComponent<MeshRenderer>().material.color;
-            int buffTime = 0;
-            while (buffTime <= 8)
-            {
-                gameObject.GetComponent<MeshRenderer>().material.color = new Color(
-                    Random.value,
-                    Random.value,
-                    Random.value
-                );
-                yield return new WaitForSeconds(1f);
-                buffTime += 1;
-
-            }
-
-            gameObject.GetComponent<MeshRenderer>().material.color = originalColor;
-            buffTime = 0;
-        }
-        yield return null;
     }
 }
 
