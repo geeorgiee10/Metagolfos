@@ -21,7 +21,8 @@ public class RandomPerk : NetworkBehaviour
             {
                 case "SuperHit":
                     //Activar buff
-                    
+                    //Debug.Log("SuperHit activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    superHit(other.gameObject);
                     break;
 
                 case "Intangible":
@@ -32,7 +33,9 @@ public class RandomPerk : NetworkBehaviour
 
                 case "Freeze":
                     //Activar buff
-                    //other.gameObject.GetComponent<Player>().Under5s;
+                    //Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    if (other.gameObject.GetComponent<Putter>() != null)
+                        other.gameObject.GetComponent<Putter>().startFreeze();
                     break;
                 case "Teleport":
                     //Activar buff
@@ -54,6 +57,46 @@ public class RandomPerk : NetworkBehaviour
             }
             Runner.Despawn(Object);
         }
+    }
+
+    private IEnumerator Intangible(GameObject gameObject)
+    {
+        if (gameObject.GetComponent<SphereCollider>() != null)
+        {
+            gameObject.GetComponent<SphereCollider>().isTrigger = true;
+            yield return new WaitForSeconds(8f);
+            gameObject.GetComponent<SphereCollider>().isTrigger = false;
+        }
+    }
+
+    private IEnumerator SuperStar(GameObject gameObject)
+    {
+        if (gameObject.GetComponent<MeshRenderer>() != null)
+        {
+            Color originalColor = gameObject.GetComponent<MeshRenderer>().material.color;
+            int buffTime = 0;
+            while (buffTime <= 8)
+            {
+                gameObject.GetComponent<MeshRenderer>().material.color = new Color(
+                    Random.value,
+                    Random.value,
+                    Random.value
+                );
+                yield return new WaitForSeconds(1f);
+                buffTime += 1;
+
+            }
+
+            gameObject.GetComponent<MeshRenderer>().material.color = originalColor;
+            buffTime = 0;
+        }
+        yield return null;
+    }
+
+    private void superHit(GameObject gameObject)
+    {
+        gameObject.GetComponent<Putter>().maxPuttStrength = 20;
+        //Debug.Log("SuperHit: " + gameObject.name + "fuerza" + gameObject.GetComponent<Putter>().maxPuttStrength);
     }
 }
 

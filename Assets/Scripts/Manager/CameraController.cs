@@ -105,14 +105,29 @@ public class CameraController : MonoBehaviour
 		yaw = Mathf.Repeat(yaw + 180, 360) - 180;
 		pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
 
-		Vector3 up = con.Up;
+		Vector3 up = con.Up.normalized;
 
-		// rotación relativa al "up" dinámico
+		// base estable relativa a gravedad
+		Vector3 baseForward = Vector3.ProjectOnPlane(Vector3.forward, up).normalized;
+
+		// fallback cuando gravedad = forward
+		if (baseForward.sqrMagnitude < 0.001f)
+		{
+			baseForward = Vector3.ProjectOnPlane(Vector3.right, up).normalized;
+		}
+
+		// yaw respecto a gravedad actual
 		Quaternion yawRot = Quaternion.AngleAxis(yaw, up);
-		Vector3 right = Vector3.Cross(up, yawRot * Vector3.forward);
+
+		Vector3 forwardDir = yawRot * baseForward;
+
+		// eje right correcto
+		Vector3 right = Vector3.Cross(up, forwardDir).normalized;
+
+		// aplicar pitch
 		Quaternion pitchRot = Quaternion.AngleAxis(pitch, right);
 
-		Vector3 forward = pitchRot * (yawRot * Vector3.forward);
+		Vector3 forward = pitchRot * forwardDir;
 
 		transform.position = con.Position - forward * distance;
 
