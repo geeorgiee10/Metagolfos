@@ -5,58 +5,147 @@ using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[System.Serializable]
+public class BuffData
+{
+    public string buffName;
+
+    [Range(0,100)]
+    public int probability;
+}
+
 
 public class RandomPerk : NetworkBehaviour
 {
-    private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
+    [Header("Buffs")]
+    public BuffData[] abilities;
+
+    [Header("References")]
     [SerializeField] private Transform holePosition;
+
+    private bool used = false;
+
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "Player")
+        if (used) return;
+
+        if (other.gameObject.CompareTag("Player"))
         {
-            
-            int randomIndex = Random.Range(0, abilities.Length);
-            string randomAbility = abilities[randomIndex];
-            switch (randomAbility)
-            {
-                case "SuperHit":
-                    //Activar buff
-                    //Debug.Log("SuperHit activated for: " + other.gameObject.GetComponent<Putter>().nombre);
-                    superHit(other.gameObject);
-                    break;
+            used = true;
 
-                case "Intangible":
-                    //Activar buff
-                    if(other.gameObject.GetComponent<Putter>()!=null)
-                        other.gameObject.GetComponent<Putter>().startIntangible();
-                    break;
-
-                case "Freeze":
-                    //Activar buff
-                    //Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
-                    if (other.gameObject.GetComponent<Putter>() != null)
-                        other.gameObject.GetComponent<Putter>().startFreeze();
-                    break;
-                case "Teleport":
-                    //Activar buff
-                    Vector3 positionOffset = new Vector3(0, 1, 0);
-                    other.gameObject.transform.position = holePosition.position + positionOffset;
-                    other.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-                    break;
-                case "SuperStar":
-                    //Activar buff
-                    if(other.gameObject.GetComponent<Putter>()!=null)
-                        other.gameObject.GetComponent<Putter>().startSuperstar();
-                    break;
-                case "MagneticField":
-                    //Activar buff
-                    //other.gameObject.GetComponent<Player>().Under5s;
-                    break;
-                
-                
-            }
-            Runner.Despawn(Object);
+            StartCoroutine(GiveRandomPerk(other.gameObject));
         }
+    }
+    
+
+    private IEnumerator GiveRandomPerk(GameObject player)
+    {
+        // Elegir buff con probabilidades
+        string randomAbility = GetRandomBuff();
+
+        // Obtener índice para la UI
+        int finalIndex = GetBuffIndex(randomAbility);
+
+        // Mostrar ruleta
+        if (player.GetComponent<NetworkObject>().HasInputAuthority)
+        {
+            InterfaceManager.Instance.buffRouletteUI.PlayRoulette(finalIndex);
+        }
+
+        // Esperar animación
+        yield return new WaitForSeconds(2f);
+
+        // Aplicar buff
+        switch (randomAbility)
+        {
+            case "SuperHit":
+
+                superHit(player);
+
+                break;
+
+            case "Intangible":
+
+                if (player.GetComponent<Putter>() != null)
+                    player.GetComponent<Putter>().startIntangible();
+
+                break;
+
+            case "Freeze":
+
+                if (player.GetComponent<Putter>() != null)
+                    player.GetComponent<Putter>().startFreeze();
+
+                break;
+
+            case "Teleport":
+
+                Vector3 positionOffset = new Vector3(0, 1, 0);
+
+                player.transform.position =
+                    holePosition.position + positionOffset;
+
+                player.GetComponent<Rigidbody>().velocity =
+                    Vector3.zero;
+
+                break;
+
+            case "SuperStar":
+
+                if (player.GetComponent<Putter>() != null)
+                    player.GetComponent<Putter>().startSuperstar();
+
+                break;
+
+            case "MagneticField":
+
+                //Activar buff
+                //other.gameObject.GetComponent<Player>().Under5s;
+
+                break;
+        }
+
+        // Destruir caja
+        Runner.Despawn(Object);
+    }
+
+    private string GetRandomBuff()
+    {
+        int totalWeight = 0;
+
+        foreach (BuffData buff in abilities)
+        {
+            totalWeight += buff.probability;
+        }
+
+        int randomNumber = Random.Range(0, totalWeight);
+
+        int currentWeight = 0;
+
+        foreach (BuffData buff in abilities)
+        {
+            currentWeight += buff.probability;
+
+            if (randomNumber < currentWeight)
+            {
+                return buff.buffName;
+            }
+        }
+
+        return abilities[0].buffName;
+    }
+
+    private int GetBuffIndex(string buffName)
+    {
+        for (int i = 0; i < abilities.Length; i++)
+        {
+            if (abilities[i].buffName == buffName)
+            {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     private IEnumerator Intangible(GameObject gameObject)

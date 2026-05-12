@@ -421,6 +421,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12587e690aea2e5429526f7b1efa0607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilities:
+  - buffName: SuperHit
+    probability: 0
+  - buffName: Intangible
+    probability: 100
+  - buffName: Freeze
+    probability: 0
+  - buffName: Teleport
+    probability: 0
+  - buffName: SuperStar
+    probability: 0
+  - buffName: MagneticField
+    probability: 0
   holePosition: {fileID: 0}
 --- !u!114 &805453038104283831
 MonoBehaviour:

@@ -14,6 +14,7 @@ public class InterfaceManager : MonoBehaviour
 	public PerformanceUI performance;
 	public PauseMenuUI pauseMenu;
 	public PostGameUI postgameUI;
+	public BuffRouletteUI buffRouletteUI;
 
 	public Canvas worldCanvas;
 
