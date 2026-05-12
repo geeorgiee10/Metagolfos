@@ -8,8 +8,7 @@ using Random = UnityEngine.Random;
 
 public class RandomPerk : NetworkBehaviour
 {
-    //private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
-    private String[] abilities = { "SuperHit", "Freeze" };
+    private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
     [SerializeField] private Transform holePosition;
     private void OnCollisionEnter(Collision other)
     {
@@ -35,7 +34,8 @@ public class RandomPerk : NetworkBehaviour
                 case "Freeze":
                     //Activar buff
                     //Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
-                    Freeze(other.gameObject);
+                    if (other.gameObject.GetComponent<Putter>() != null)
+                        other.gameObject.GetComponent<Putter>().startFreeze();
                     break;
                 case "Teleport":
                     //Activar buff
@@ -57,26 +57,6 @@ public class RandomPerk : NetworkBehaviour
             }
             Runner.Despawn(Object);
         }
-    }
-    private IEnumerator Freeze(GameObject gameObject)
-    {
-        /*foreach (PlayerObject player in PlayerRegistry.Players)
-        {
-            if (player.Nickname == gameObject.GetComponent<Putter>().nombre)
-            {
-                //Debug.Log("if Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
-                continue;
-            }
-            Debug.Log("Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
-            //player.Controller.freeze = true;
-        }*/
-
-        yield return new WaitForSeconds(5f);
-
-        /*foreach (PlayerObject player in PlayerRegistry.Players)
-        {
-            //player.Controller.freeze = false;
-        }*/
     }
 
     private IEnumerator Intangible(GameObject gameObject)
@@ -116,7 +96,7 @@ public class RandomPerk : NetworkBehaviour
     private void superHit(GameObject gameObject)
     {
         gameObject.GetComponent<Putter>().maxPuttStrength = 20;
-        Debug.Log("SuperHit: " + gameObject.name + "fuerza" + gameObject.GetComponent<Putter>().maxPuttStrength);
+        //Debug.Log("SuperHit: " + gameObject.name + "fuerza" + gameObject.GetComponent<Putter>().maxPuttStrength);
     }
 }
 

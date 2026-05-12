@@ -50,8 +50,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
+    // Buffs, debuffs.
+	public String nombre;
     private bool superstar = false;
-	// [Header("Gravedad Sincronizada")]
+	private bool freeze = false;
+
+    // [Header("Gravedad Sincronizada")]
     [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
     public float gravityForce = 8.8f;
 
@@ -105,8 +109,9 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
         PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
+		nombre = PlayerObj.Nickname;
 
-		ren.material.color = PlayerObj.Color;
+        ren.material.color = PlayerObj.Color;
 
 		if (Object.HasInputAuthority)
 			CameraController.AssignControl(this);
@@ -123,7 +128,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         traveller = GetComponent<PortalTraveller>();
         if (traveller == null) traveller = gameObject.AddComponent<PortalTraveller>();
         traveller.graphicsObject = ren.gameObject;
-	}
+
+    }
 
 	public override void Despawned(NetworkRunner runner, bool hasState)
 	{
@@ -171,7 +177,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			// stopped dragging
 			if (CurrInput.isDragging == false && prevInput.isDragging)
 			{
-				if (CanPutt && PuttStrength > 0)
+				// freeze es el debuff
+				if (CanPutt && PuttStrength > 0 && !freeze)
 				{
 					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
 					{
@@ -203,8 +210,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 						HUD.SetStrokeCount(PlayerObj.Strokes);
 					}
 				}
-
-				PuttStrength = 0;
+				maxPuttStrength = 10;
+                PuttStrength = 0;
 				if (CameraController.HasControl(this))
 				{
 					HUD.HidePuttCharge();
@@ -435,6 +442,30 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	    yield return new WaitForSeconds(8f);
     
 	    gameObject.layer = originalLayer;
+    }
+    public void startFreeze()
+    {
+        StartCoroutine(Freeze());
+    }
+    public IEnumerator Freeze()
+    {
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            if (player.Index == PlayerObj.Index)
+            {
+                //Debug.Log("if Player found: " + player.Nickname + ": " + PlayerObj.Index);
+                continue;
+            }
+            //Debug.Log("Player found: " + player.Nickname + ": " + player.Index);
+            player.Controller.freeze = true;
+        }
+
+        yield return new WaitForSeconds(5f);
+
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            player.Controller.freeze = false;
+        }
     }
     bool IsGrounded()
 	{
