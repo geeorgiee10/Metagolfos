@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public class RandomPerk : MonoBehaviour
+public class RandomPerk : NetworkBehaviour
 {
     //private String[] abilities = {"SuperHit","Intangible","Freeze","Teleport","SuperStar","MagneticField"};
     private String[] abilities = { "SuperHit", "Freeze" };
@@ -54,8 +55,7 @@ public class RandomPerk : MonoBehaviour
                 
                 
             }
-            //Destroy(this.gameObject);
-            gameObject.SetActive(false);
+            Runner.Despawn(Object);
         }
     }
     private IEnumerator Freeze(GameObject gameObject)

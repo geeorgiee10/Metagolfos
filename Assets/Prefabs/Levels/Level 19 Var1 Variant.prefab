@@ -23,6 +23,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4494140824504976943, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.188
+      objectReference: {fileID: 0}
+    - target: {fileID: 4494140824504976943, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.168
+      objectReference: {fileID: 0}
     - target: {fileID: 4859933067564044936, guid: b836924dde481bd46ad62ae21694956b, type: 3}
       propertyPath: SortKey
       value: 3898250873
