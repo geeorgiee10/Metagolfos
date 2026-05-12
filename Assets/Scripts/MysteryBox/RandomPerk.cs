@@ -21,7 +21,7 @@ public class RandomPerk : MonoBehaviour
             {
                 case "SuperHit":
                     //Activar buff
-                    Debug.Log("SuperHit activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    //Debug.Log("SuperHit activated for: " + other.gameObject.GetComponent<Putter>().nombre);
                     superHit(other.gameObject);
                     break;
 
@@ -32,7 +32,7 @@ public class RandomPerk : MonoBehaviour
 
                 case "Freeze":
                     //Activar buff
-                    Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
+                    //Debug.Log("Freeze activated for: " + other.gameObject.GetComponent<Putter>().nombre);
                     Freeze(other.gameObject);
                     break;
                 case "Teleport":
@@ -57,23 +57,23 @@ public class RandomPerk : MonoBehaviour
     }
     private IEnumerator Freeze(GameObject gameObject)
     {
-        foreach (PlayerObject player in PlayerRegistry.Players)
+        /*foreach (PlayerObject player in PlayerRegistry.Players)
         {
             if (player.Nickname == gameObject.GetComponent<Putter>().nombre)
             {
-                Debug.Log("if Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
+                //Debug.Log("if Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
                 continue;
             }
             Debug.Log("Player found: " + player.Nickname + ": " + gameObject.GetComponent<Putter>().nombre);
-            player.Controller.freeze = true;
-        }
+            //player.Controller.freeze = true;
+        }*/
 
         yield return new WaitForSeconds(5f);
 
-        foreach (PlayerObject player in PlayerRegistry.Players)
+        /*foreach (PlayerObject player in PlayerRegistry.Players)
         {
-            player.Controller.freeze = false;
-        }
+            //player.Controller.freeze = false;
+        }*/
     }
 
     private IEnumerator Intangible(GameObject gameObject)
