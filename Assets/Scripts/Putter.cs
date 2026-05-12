@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Random = UnityEngine.Random;
 
 public class Putter : NetworkBehaviour, ICanControlCamera
 {
@@ -48,6 +50,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
+    private bool superstar = false;
 	// [Header("Gravedad Sincronizada")]
     [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
     public float gravityForce = 8.8f;
@@ -59,8 +62,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
             // La flecha debe apuntar hacia adelante según el YAW, 
             // pero su "UP" debe ser opuesto a la gravedad
             Vector3 up = -LocalGravityDir;
-            Quaternion rotBase = Quaternion.LookRotation(Vector3.ProjectOnPlane(Vector3.forward, up), up);
-            guideArrow.rotation = rotBase * Quaternion.AngleAxis((float)yaw, Vector3.up);
+            Vector3 dir = Vector3.ProjectOnPlane(
+				CameraController.Instance.transform.forward,
+				LocalGravityDir
+			).normalized;
+
+			guideArrow.rotation = Quaternion.LookRotation(dir, up);
         }
 	}
 
@@ -77,6 +84,18 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	//		}
 	//	}
 	//}
+
+	private void OnCollisionEnter(Collision other)
+	{
+		if (superstar)
+		{
+			if (other.gameObject.tag == "Player")
+			{
+				if(other.gameObject.GetComponent<Putter>()!= null && initialPosition!=null)
+				other.gameObject.GetComponent<Putter>().TeleportBall(initialPosition);
+			}
+		}
+	}
 
 	public override void Spawned()
 	{
@@ -163,16 +182,18 @@ public class Putter : NetworkBehaviour, ICanControlCamera
                     lastPuttPosition = rb.position;
                     hasLastPuttPosition = true;
 
-                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+                    Vector3 up = -LocalGravityDir.normalized;
+
+					// dirección de cámara sobre el plano del suelo actual
+					Vector3 fwd = Vector3.ProjectOnPlane(
+						CameraController.Instance.transform.forward,
+						LocalGravityDir
+					).normalized;
 
 					if (IsGrounded())
-					{
 						rb.AddForce(fwd * PuttStrength, ForceMode.VelocityChange);
-					}
 					else
-					{
 						rb.velocity = fwd * PuttStrength;
-					}
 
 					PuttTimer = TickTimer.CreateFromSeconds(Runner, 3);
 					PlayerObj.Strokes++;
@@ -373,7 +394,46 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
         rb.MovePosition(targetPosition);
     }
+    public void startSuperstar()
+    {
+	    StartCoroutine(SuperStar());
+    }
+    private IEnumerator SuperStar()
+    {
+	    MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+	    if (mr != null)
+	    {
+		    Color originalColor = mr.material.color;
+		    int buffTime = 0; 
+        
+		    while (buffTime <= 8)
+		    {
+			   
+			    mr.material.color = new Color(Random.value, Random.value, Random.value);
+			    yield return new WaitForSeconds(1f);
+			    buffTime += 1;
+		    }
 
+		    mr.material.color = originalColor;
+	    }
+	    yield return null;
+    }
+
+    public void startIntangible()
+    {
+	    StartCoroutine(Intangible());
+    }
+	
+    private IEnumerator Intangible()
+    {
+	    
+	    int originalLayer = gameObject.layer;
+	    gameObject.layer = LayerMask.NameToLayer("PlayerIntangible");
+    
+	    yield return new WaitForSeconds(8f);
+    
+	    gameObject.layer = originalLayer;
+    }
     bool IsGrounded()
 	{
 		Vector3 dir = LocalGravityDir.normalized;

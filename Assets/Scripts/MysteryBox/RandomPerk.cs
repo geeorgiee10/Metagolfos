@@ -26,8 +26,9 @@ public class RandomPerk : MonoBehaviour
                     break;
 
                 case "Intangible":
-                   //Activar buff
-                    StartCoroutine(Intangible(other.gameObject));
+                    //Activar buff
+                    if(other.gameObject.GetComponent<Putter>()!=null)
+                        other.gameObject.GetComponent<Putter>().startIntangible();
                     break;
 
                 case "Freeze":
@@ -37,12 +38,14 @@ public class RandomPerk : MonoBehaviour
                     break;
                 case "Teleport":
                     //Activar buff
-                    other.gameObject.transform.position = holePosition.position;
+                    Vector3 positionOffset = new Vector3(0, 1, 0);
+                    other.gameObject.transform.position = holePosition.position + positionOffset;
                     other.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
                     break;
                 case "SuperStar":
                     //Activar buff
-                    StartCoroutine(SuperStar(other.gameObject));
+                    if(other.gameObject.GetComponent<Putter>()!=null)
+                        other.gameObject.GetComponent<Putter>().startSuperstar();
                     break;
                 case "MagneticField":
                     //Activar buff
