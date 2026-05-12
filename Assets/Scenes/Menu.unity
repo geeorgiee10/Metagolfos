@@ -844,7 +844,11 @@ PrefabInstance:
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[7].variants.Array.data[1]
       value: 
-      objectReference: {fileID: 6126533143678557845, guid: 3c5ced46522ffe54a8c2b600c902b4f9, type: 3}
+      objectReference: {fileID: 3903275013249353446, guid: 7104f5a10fdeada4b90df57c52456c9d, type: 3}
+    - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
+      propertyPath: levels.Array.data[7].variants.Array.data[2]
+      value: 
+      objectReference: {fileID: 6416970040509672509, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[8].variants.Array.data[0]
       value: 

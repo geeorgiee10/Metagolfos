@@ -425,11 +425,11 @@ MonoBehaviour:
   - buffName: SuperHit
     probability: 0
   - buffName: Intangible
-    probability: 100
+    probability: 0
   - buffName: Freeze
     probability: 0
   - buffName: Teleport
-    probability: 0
+    probability: 100
   - buffName: SuperStar
     probability: 0
   - buffName: MagneticField

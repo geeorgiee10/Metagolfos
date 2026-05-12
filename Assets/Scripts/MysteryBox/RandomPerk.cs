@@ -27,30 +27,30 @@ public class RandomPerk : NetworkBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        if (!HasStateAuthority) return;
+
         if (used) return;
 
         if (other.gameObject.CompareTag("Player"))
         {
             used = true;
 
-            StartCoroutine(GiveRandomPerk(other.gameObject));
+            var playerNetObj = other.gameObject.GetComponent<NetworkObject>();
+            if (playerNetObj == null) return;
+
+            StartCoroutine(GiveRandomPerk(other.gameObject, playerNetObj.InputAuthority));
         }
     }
     
 
-    private IEnumerator GiveRandomPerk(GameObject player)
+    private IEnumerator GiveRandomPerk(GameObject player, PlayerRef targetPlayer)
     {
-        // Elegir buff con probabilidades
         string randomAbility = GetRandomBuff();
 
-        // Obtener índice para la UI
         int finalIndex = GetBuffIndex(randomAbility);
 
-        // Mostrar ruleta
-        if (player.GetComponent<NetworkObject>().HasInputAuthority)
-        {
-            InterfaceManager.Instance.buffRouletteUI.PlayRoulette(finalIndex);
-        }
+        // Mostrar ruleta SOLO al jugador que tocó la caja
+        RPC_ShowRoulette(targetPlayer, finalIndex);
 
         // Esperar animación
         yield return new WaitForSeconds(2f);
@@ -96,17 +96,21 @@ public class RandomPerk : NetworkBehaviour
                     player.GetComponent<Putter>().startSuperstar();
 
                 break;
-
-            case "MagneticField":
-
-                //Activar buff
-                //other.gameObject.GetComponent<Player>().Under5s;
-
-                break;
         }
 
-        // Destruir caja
         Runner.Despawn(Object);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_ShowRoulette(PlayerRef targetPlayer, int finalIndex)
+    {
+        if (Runner.LocalPlayer != targetPlayer) return;
+
+        if (InterfaceManager.Instance != null &&
+            InterfaceManager.Instance.buffRouletteUI != null)
+        {
+            InterfaceManager.Instance.buffRouletteUI.PlayRoulette(finalIndex);
+        }
     }
 
     private string GetRandomBuff()
