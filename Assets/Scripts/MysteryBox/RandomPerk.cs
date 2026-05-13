@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 [System.Serializable]
@@ -37,6 +38,8 @@ public class RandomPerk : NetworkBehaviour
 
             var playerNetObj = other.gameObject.GetComponent<NetworkObject>();
             if (playerNetObj == null) return;
+
+            gameObject.GetComponent<BoxCollider>().enabled = false;
 
             StartCoroutine(GiveRandomPerk(other.gameObject, playerNetObj.InputAuthority));
         }

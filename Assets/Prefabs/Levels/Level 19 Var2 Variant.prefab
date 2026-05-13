@@ -15,6 +15,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 3426488518
       objectReference: {fileID: 0}
+    - target: {fileID: 3283462057536002260, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: holePosition
+      value: 
+      objectReference: {fileID: 4599671578711983936}
     - target: {fileID: 3294988334895629205, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -35,6 +39,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 2402080909
       objectReference: {fileID: 0}
+    - target: {fileID: 8001732952981843711, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
+      propertyPath: holePosition
+      value: 
+      objectReference: {fileID: 4599671578711983936}
     - target: {fileID: 8394820880530657489, guid: e1fb5a257b3d13b4aaf7e9df64555481, type: 3}
       propertyPath: m_RootOrder
       value: 0
