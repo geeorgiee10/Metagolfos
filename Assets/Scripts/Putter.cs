@@ -10,6 +10,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	[Header("References Spawn")]
     private Vector3 initialPosition;
     private Vector3 lastPuttPosition;
+	private Vector3 lastPuttGravity;
     private bool hasLastPuttPosition = false;
 
     public Transform interpolationTarget;
@@ -50,12 +51,10 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
-    // Buffs, debuffs.
 	public String nombre;
     private bool superstar = false;
 	private bool freeze = false;
 
-    // [Header("Gravedad Sincronizada")]
     [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
     public float gravityForce = 8.8f;
 
@@ -63,8 +62,6 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	{
 		if (CameraController.HasControl(this))
         {
-            // La flecha debe apuntar hacia adelante según el YAW, 
-            // pero su "UP" debe ser opuesto a la gravedad
             Vector3 up = -LocalGravityDir;
             Vector3 dir = Vector3.ProjectOnPlane(
 				CameraController.Instance.transform.forward,
@@ -106,6 +103,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         // Spawn position
         initialPosition = transform.position;
         lastPuttPosition = initialPosition;
+		lastPuttGravity = Vector3.down;
 
         PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
@@ -179,18 +177,19 @@ public class Putter : NetworkBehaviour, ICanControlCamera
             {
                 if (CanPutt && PuttStrength > 0 && !freeze)
                 {
+					lastPuttPosition = transform.position;
+					lastPuttGravity = LocalGravityDir;
+			        hasLastPuttPosition = true;
+
                     Vector3 playerUp = -LocalGravityDir;
-					// Buscamos un vector de referencia que no sea paralelo a la gravedad
+
 					Vector3 referenceForward = Vector3.ProjectOnPlane(Vector3.forward, playerUp).normalized;
 					if (referenceForward.sqrMagnitude < 0.01f) 
 						referenceForward = Vector3.ProjectOnPlane(Vector3.up, playerUp).normalized;
 
-					// 2. Aplicamos el YAW (giro horizontal) alrededor del eje de gravedad del jugador
-					// En lugar de Euler global, giramos sobre 'playerUp'
 					Quaternion yawRotation = Quaternion.AngleAxis(CurrInput.yaw, playerUp);
 					Vector3 fwd = (yawRotation * referenceForward).normalized;
 
-					// 3. Aplicar la fuerza
 					if (IsGrounded())
 						rb.AddForce(fwd * PuttStrength, ForceMode.VelocityChange);
 					else
@@ -370,24 +369,30 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		if (toInitial)
 		{
 			TeleportBall(initialPosition);
+			Rpc_SetGravity(Vector3.down);
 		}
 		else if (hasLastPuttPosition)
 		{
 			TeleportBall(lastPuttPosition);
+			Rpc_SetGravity(lastPuttGravity);
 		}
 	}
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-
-	
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
+		
 		if (Object.HasInputAuthority) CameraController.Recenter();
 
 		rb.velocity = rb.angularVelocity = Vector3.zero;
+		
 		TeleportBall(lastPuttPosition);
-		//rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
+		
+		if (Object.HasStateAuthority)
+		{
+			Rpc_SetGravity(lastPuttGravity);
+		}
 	}
 
     private void TeleportBall(Vector3 targetPosition)
@@ -402,27 +407,35 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	    StartCoroutine(SuperStar());
     }
     private IEnumerator SuperStar()
-    {
-	    superstar = true;
-	    MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
-	    if (mr != null)
-	    {
-		    Color originalColor = mr.material.color;
-		    int buffTime = 0; 
-        
-		    while (buffTime <= 8)
-		    {
-			   
-			    mr.material.color = new Color(Random.value, Random.value, Random.value);
-			    yield return new WaitForSeconds(1f);
-			    buffTime += 1;
-		    }
+	{
+		superstar = true;
+		MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+		
+		if (mr != null)
+		{
+			Color originalColor = mr.material.color;
+			float duration = 8f; // Tiempo total del buff
+			float timer = 0f;
+			float rainbowSpeed = 2f; // Velocidad a la que cambian los colores
 
-		    mr.material.color = originalColor;
-	    }
-	    superstar = false;
-	    yield return null;
-    }
+			while (timer < duration)
+			{
+				// Calculamos el tono basado en el tiempo transcurrido
+				// El operador % 1f asegura que el valor se mantenga entre 0 y 1
+				float hue = (Time.time * rainbowSpeed) % 1f;
+				
+				// Convertimos de HSV a Color (Saturación y Brillo al máximo para el efecto)
+				mr.material.color = Color.HSVToRGB(hue, 1f, 1f);
+				
+				timer += Time.deltaTime;
+				yield return null; // Esperamos al siguiente frame para que sea fluido
+			}
+
+			mr.material.color = originalColor;
+		}
+		
+		superstar = false;
+	}
 
     public void startIntangible()
     {
