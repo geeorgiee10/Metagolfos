@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 8900000, guid: 2f55c5fc8330dcc42b476f85a371b854, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.08045622, g: 0.09985112, b: 0.30125368, a: 1}
+  m_IndirectSpecularColor: {r: 0.080467805, g: 0.09986709, b: 0.30127704, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -707,11 +707,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[0].variants.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[1].variants.Array.size
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[2].variants.Array.size
@@ -788,7 +788,7 @@ PrefabInstance:
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[0].variants.Array.data[0]
       value: 
-      objectReference: {fileID: 6370458012872008309, guid: b836924dde481bd46ad62ae21694956b, type: 3}
+      objectReference: {fileID: 8525899625252362697, guid: 0de2cf78ed405c84283b41987cc0996f, type: 3}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[0].variants.Array.data[1]
       value: 
@@ -800,7 +800,7 @@ PrefabInstance:
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[1].variants.Array.data[0]
       value: 
-      objectReference: {fileID: 8525899625252362697, guid: 0de2cf78ed405c84283b41987cc0996f, type: 3}
+      objectReference: {fileID: 6370458012872008309, guid: b836924dde481bd46ad62ae21694956b, type: 3}
     - target: {fileID: 6640019007489209582, guid: 0591144dde9c33347a13b687bef4c118, type: 3}
       propertyPath: levels.Array.data[1].variants.Array.data[1]
       value: 

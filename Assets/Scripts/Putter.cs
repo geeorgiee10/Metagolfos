@@ -175,49 +175,45 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			}
 
 			// stopped dragging
-			if (CurrInput.isDragging == false && prevInput.isDragging)
-			{
-				// freeze es el debuff
-				if (CanPutt && PuttStrength > 0 && !freeze)
-				{
-					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
-					{
-						GameManager.PlayerDNF(PlayerObj);
-						return;
-					}
+            if (CurrInput.isDragging == false && prevInput.isDragging)
+            {
+                if (CanPutt && PuttStrength > 0 && !freeze)
+                {
+                    Vector3 playerUp = -LocalGravityDir;
+					// Buscamos un vector de referencia que no sea paralelo a la gravedad
+					Vector3 referenceForward = Vector3.ProjectOnPlane(Vector3.forward, playerUp).normalized;
+					if (referenceForward.sqrMagnitude < 0.01f) 
+						referenceForward = Vector3.ProjectOnPlane(Vector3.up, playerUp).normalized;
 
-                    lastPuttPosition = rb.position;
-                    hasLastPuttPosition = true;
+					// 2. Aplicamos el YAW (giro horizontal) alrededor del eje de gravedad del jugador
+					// En lugar de Euler global, giramos sobre 'playerUp'
+					Quaternion yawRotation = Quaternion.AngleAxis(CurrInput.yaw, playerUp);
+					Vector3 fwd = (yawRotation * referenceForward).normalized;
 
-                    Vector3 up = -LocalGravityDir.normalized;
-
-					// dirección de cámara sobre el plano del suelo actual
-					Vector3 fwd = Vector3.ProjectOnPlane(
-						CameraController.Instance.transform.forward,
-						LocalGravityDir
-					).normalized;
-
+					// 3. Aplicar la fuerza
 					if (IsGrounded())
 						rb.AddForce(fwd * PuttStrength, ForceMode.VelocityChange);
 					else
 						rb.velocity = fwd * PuttStrength;
-
+						
 					PuttTimer = TickTimer.CreateFromSeconds(Runner, 3);
-					PlayerObj.Strokes++;
+                    PlayerObj.Strokes++;
 
-					if (CameraController.HasControl(this))
-					{
-						HUD.SetStrokeCount(PlayerObj.Strokes);
-					}
-				}
-				maxPuttStrength = 10;
+                    if (CameraController.HasControl(this))
+                    {
+                        HUD.SetStrokeCount(PlayerObj.Strokes);
+                    }
+                }
+
+                maxPuttStrength = 10;
                 PuttStrength = 0;
-				if (CameraController.HasControl(this))
-				{
-					HUD.HidePuttCharge();
-					guideArrow.localScale = new Vector3(1, 1, 0);
-				}
-			}
+
+                if (CameraController.HasControl(this))
+                {
+                    HUD.HidePuttCharge();
+                    guideArrow.localScale = new Vector3(1, 1, 0);
+                }
+            }
 
 			if (CameraController.HasControl(this) && !isFirstUpdate)
 			{

@@ -15,26 +15,35 @@ public class PlayerInputBehaviour : Fusion.Behaviour, INetworkRunnerCallbacks
 	}
 
 	public void OnInput(NetworkRunner runner, NetworkInput input)
-	{
-		if (PlayerObject.Local == null || PlayerObject.Local.Controller == null) return;
-		if (UIScreen.activeScreen != InterfaceManager.Instance.hud) return;
-		if (GameManager.State.Current != GameState.EGameState.Intro
-			&& GameManager.State.Current != GameState.EGameState.Game) return;
+    {
+        if (PlayerObject.Local == null || PlayerObject.Local.Controller == null) return;
+        // ... (tus validaciones de UI y State)
 
-		PlayerInput fwInput = new PlayerInput();
+        PlayerInput fwInput = new PlayerInput();
+        if (fwInput.isDragging = Input.GetMouseButton(0))
+        {
+            fwInput.dragDelta = accumulatedDelta;
+        }
 
-		if (fwInput.isDragging = Input.GetMouseButton(0))
-		{
-			fwInput.dragDelta = accumulatedDelta;
-		}
+		// --- CÁLCULO DE YAW RELATIVO A LA GRAVEDAD ---
+		Transform cam = CameraController.Instance.transform;
+		Vector3 playerUp = -PlayerObject.Local.Controller.LocalGravityDir;
 
-		Vector3 forward = CameraController.Instance.transform.forward;
-		fwInput.yaw = Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
-		
-		input.Set(fwInput);
+		// Referencia base del plano (igual que en el Putter)
+		Vector3 referenceForward = Vector3.ProjectOnPlane(Vector3.forward, playerUp).normalized;
+		if (referenceForward.sqrMagnitude < 0.01f) 
+			referenceForward = Vector3.ProjectOnPlane(Vector3.up, playerUp).normalized;
 
-		accumulatedDelta = 0;
-	}
+		// Dirección hacia donde mira la cámara proyectada en el plano
+		Vector3 flattenedForward = Vector3.ProjectOnPlane(cam.forward, playerUp).normalized;
+
+		// Calculamos el ángulo entre nuestra referencia frontal y la mirada de la cámara
+		// El "SignedAngle" es vital para saber si giramos a izquierda o derecha
+		fwInput.yaw = Vector3.SignedAngle(referenceForward, flattenedForward, playerUp);
+        
+        input.Set(fwInput);
+        accumulatedDelta = 0;
+    }
 
 	#region INetworkRunnerCallbacks
 	public void OnConnectedToServer(NetworkRunner runner) { }
@@ -68,5 +77,5 @@ public struct PlayerInput : INetworkInput
 {
 	public bool isDragging;
 	public float dragDelta;
-	public Angle yaw;
+	public float yaw;
 }
