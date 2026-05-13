@@ -12,6 +12,9 @@ public class Putter : NetworkBehaviour, ICanControlCamera
     private Vector3 lastPuttPosition;
 	private Vector3 lastPuttGravity;
     private bool hasLastPuttPosition = false;
+	public bool HasSuperHit {get; set;}
+	public GameObject fire;
+	public GameObject ice;
 
     public Transform interpolationTarget;
 	public Transform guideArrow;
@@ -147,6 +150,9 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void FixedUpdateNetwork()
 	{
+		fire.SetActive(HasSuperHit);
+		ice.SetActive(freeze);
+
 		if (GetInput(out PlayerInput input))
 		{
 			CurrInput = input;
@@ -205,6 +211,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
                 }
 
                 maxPuttStrength = 10;
+				HasSuperHit = false;
                 PuttStrength = 0;
 
                 if (CameraController.HasControl(this))

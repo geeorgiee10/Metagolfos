@@ -63,7 +63,7 @@ public class RandomPerk : NetworkBehaviour
         {
             case "SuperHit":
 
-                superHit(player);
+                SuperHit(player);
 
                 break;
 
@@ -189,9 +189,10 @@ public class RandomPerk : NetworkBehaviour
         yield return null;
     }
 
-    private void superHit(GameObject gameObject)
+    private void SuperHit(GameObject gameObject)
     {
         gameObject.GetComponent<Putter>().maxPuttStrength = 20;
+        gameObject.GetComponent<Putter>().HasSuperHit = true;
         //Debug.Log("SuperHit: " + gameObject.name + "fuerza" + gameObject.GetComponent<Putter>().maxPuttStrength);
     }
 }
