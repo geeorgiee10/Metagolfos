@@ -99,6 +99,10 @@ public class RandomPerk : NetworkBehaviour
                     player.GetComponent<Putter>().startSuperstar();
 
                 break;
+            case "MagneticField":
+                if (player.GetComponent<Putter>() != null)
+                    player.GetComponent<Putter>().StartMagneticField();
+                break;
         }
 
         Runner.Despawn(Object);

@@ -15,6 +15,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	public bool HasSuperHit {get; set;}
 	public GameObject fire;
 	public GameObject ice;
+	public GameObject magneticField;
 
     public Transform interpolationTarget;
 	public Transform guideArrow;
@@ -150,8 +151,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void FixedUpdateNetwork()
 	{
-		fire.SetActive(HasSuperHit);
-		ice.SetActive(freeze);
+		if(fire != null)fire.SetActive(HasSuperHit);
+		if(ice != null)ice.SetActive(freeze);
 
 		if (GetInput(out PlayerInput input))
 		{
@@ -481,6 +482,31 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         foreach (PlayerObject player in PlayerRegistry.Players)
         {
             player.Controller.freeze = false;
+        }
+    }
+    public void StartMagneticField()
+    {
+        // Solo el dueño de la bola inicia la corrutina de tiempo
+        if (Object.HasStateAuthority)
+        {
+            StartCoroutine(MagneticFieldRoutine());
+        }
+    }
+
+    private IEnumerator MagneticFieldRoutine()
+    {
+        // Buscamos el componente de sincronización
+        MagneticFieldSync sync = GetComponent<MagneticFieldSync>();
+
+        if (sync != null)
+        {
+            Debug.Log("Activando Campo Magnético en Red");
+            sync.SetBuffState(true); // Esto avisa a todos los jugadores
+
+            yield return new WaitForSeconds(8f);
+
+            Debug.Log("Desactivando Campo Magnético en Red");
+            sync.SetBuffState(false); // Esto apaga el campo en todos los jugadores
         }
     }
     bool IsGrounded()
