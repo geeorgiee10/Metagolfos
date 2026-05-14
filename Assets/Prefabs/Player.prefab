@@ -305,6 +305,7 @@ GameObject:
   - component: {fileID: 925218551095575575}
   - component: {fileID: 6588710689054171440}
   - component: {fileID: 2382775264312717344}
+  - component: {fileID: 7377412673614637613}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -421,6 +422,7 @@ MonoBehaviour:
   - {fileID: 4529645544484441695}
   - {fileID: 6588710689054171440}
   - {fileID: 2382775264312717344}
+  - {fileID: 7377412673614637613}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &6588710689054171440
 MonoBehaviour:
@@ -460,6 +462,21 @@ MonoBehaviour:
   sphereVisual: {fileID: 2735814453964373948}
   spherePhysics: {fileID: 5261297415028384550}
   _isBuffActive:
+    _value: 0
+--- !u!114 &7377412673614637613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4529645544484441693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a159b005b7f1a40999e226febb9a65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireParticles: {fileID: 3974617356331946420}
+  _isFireActive:
     _value: 0
 --- !u!1001 &116015559258617431
 PrefabInstance:
@@ -619,6 +636,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1777857619219792223}
     m_Modifications:
+    - target: {fileID: 1700001683036918955, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3895954212722794963, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: playOnAwake
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4192437216587934501, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.1
@@ -638,6 +663,14 @@ PrefabInstance:
     - target: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
       propertyPath: m_Name
       value: VFX_Fire
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7531185571972932703, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: playOnAwake
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7800046302039599656, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
       propertyPath: m_RootOrder
@@ -704,5 +737,10 @@ PrefabInstance:
 --- !u!4 &1464260282739953631 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7800046302039599656, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+  m_PrefabInstance: {fileID: 8677675830681724407}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3974617356331946420 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
   m_PrefabInstance: {fileID: 8677675830681724407}
   m_PrefabAsset: {fileID: 0}

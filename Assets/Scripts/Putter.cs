@@ -151,7 +151,7 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void FixedUpdateNetwork()
 	{
-		if(fire != null)fire.SetActive(HasSuperHit);
+        GetComponent<FireEffectSync>().SetFireState(HasSuperHit);
 		if(ice != null)ice.SetActive(freeze);
 
 		if (GetInput(out PlayerInput input))

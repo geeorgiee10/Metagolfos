@@ -423,17 +423,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilities:
   - buffName: SuperHit
-    probability: 0
+    probability: 35
   - buffName: Intangible
-    probability: 0
+    probability: 20
   - buffName: Freeze
-    probability: 0
+    probability: 10
   - buffName: Teleport
-    probability: 0
+    probability: 5
   - buffName: SuperStar
-    probability: 0
+    probability: 5
   - buffName: MagneticField
-    probability: 100
+    probability: 25
   holePosition: {fileID: 0}
 --- !u!114 &805453038104283831
 MonoBehaviour:
