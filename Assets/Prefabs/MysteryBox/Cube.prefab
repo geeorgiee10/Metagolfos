@@ -85,6 +85,8 @@ GameObject:
   - component: {fileID: 805453037615563598}
   - component: {fileID: 805453037615563633}
   - component: {fileID: 805453037615563632}
+  - component: {fileID: 7108645051216723431}
+  - component: {fileID: 7786742730759179224}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -419,6 +421,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12587e690aea2e5429526f7b1efa0607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilities:
+  - buffName: SuperHit
+    probability: 35
+  - buffName: Intangible
+    probability: 20
+  - buffName: Freeze
+    probability: 10
+  - buffName: Teleport
+    probability: 5
+  - buffName: SuperStar
+    probability: 5
+  - buffName: MagneticField
+    probability: 25
+  holePosition: {fileID: 0}
 --- !u!114 &805453038104283831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -447,7 +463,8 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 805453038104283828}
   ForceRemoteRenderTimeframe: 0
 --- !u!1 &805453038286814887
 GameObject:

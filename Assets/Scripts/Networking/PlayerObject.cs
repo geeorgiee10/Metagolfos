@@ -65,7 +65,7 @@ public class PlayerObject : NetworkBehaviour
 		{
 			Local = this;
 			Rpc_SetNickname(!string.IsNullOrWhiteSpace(UserData.Nickname) ? UserData.Nickname : $"Golfer{Random.Range(100, 1000)}");
-		}
+        }
 
 		PlayerRegistry.PlayerJoined(Object.InputAuthority);
 	}
@@ -103,7 +103,7 @@ public class PlayerObject : NetworkBehaviour
 	void Rpc_SetNickname(string nick)
 	{
 		Nickname = nick;
-	}
+    }
 
 	[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
 	public void Rpc_SetColor(Color color)

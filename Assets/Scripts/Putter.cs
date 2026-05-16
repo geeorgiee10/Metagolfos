@@ -10,7 +10,12 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	[Header("References Spawn")]
     private Vector3 initialPosition;
     private Vector3 lastPuttPosition;
+	private Vector3 lastPuttGravity;
     private bool hasLastPuttPosition = false;
+	public bool HasSuperHit {get; set;}
+	public GameObject fire;
+	public GameObject ice;
+	public GameObject magneticField;
 
     public Transform interpolationTarget;
 	public Transform guideArrow;
@@ -50,8 +55,10 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	
     protected PortalTraveller traveller;
 
+	public String nombre;
     private bool superstar = false;
-	// [Header("Gravedad Sincronizada")]
+	private bool freeze = false;
+
     [Networked] public Vector3 LocalGravityDir { get; set; } = Vector3.down;
     public float gravityForce = 8.8f;
 
@@ -59,11 +66,13 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	{
 		if (CameraController.HasControl(this))
         {
-            // La flecha debe apuntar hacia adelante según el YAW, 
-            // pero su "UP" debe ser opuesto a la gravedad
             Vector3 up = -LocalGravityDir;
-            Quaternion rotBase = Quaternion.LookRotation(Vector3.ProjectOnPlane(Vector3.forward, up), up);
-            guideArrow.rotation = rotBase * Quaternion.AngleAxis((float)yaw, Vector3.up);
+            Vector3 dir = Vector3.ProjectOnPlane(
+				CameraController.Instance.transform.forward,
+				LocalGravityDir
+			).normalized;
+
+			guideArrow.rotation = Quaternion.LookRotation(dir, up);
         }
 	}
 
@@ -98,11 +107,13 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         // Spawn position
         initialPosition = transform.position;
         lastPuttPosition = initialPosition;
+		lastPuttGravity = Vector3.down;
 
         PlayerObj = PlayerRegistry.GetPlayer(Object.InputAuthority);
 		PlayerObj.Controller = this;
+		nombre = PlayerObj.Nickname;
 
-		ren.material.color = PlayerObj.Color;
+        ren.material.color = PlayerObj.Color;
 
 		if (Object.HasInputAuthority)
 			CameraController.AssignControl(this);
@@ -119,7 +130,8 @@ public class Putter : NetworkBehaviour, ICanControlCamera
         traveller = GetComponent<PortalTraveller>();
         if (traveller == null) traveller = gameObject.AddComponent<PortalTraveller>();
         traveller.graphicsObject = ren.gameObject;
-	}
+
+    }
 
 	public override void Despawned(NetworkRunner runner, bool hasState)
 	{
@@ -139,6 +151,9 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 
 	public override void FixedUpdateNetwork()
 	{
+        GetComponent<FireEffectSync>().SetFireState(HasSuperHit);
+		if(ice != null)ice.SetActive(freeze);
+
 		if (GetInput(out PlayerInput input))
 		{
 			CurrInput = input;
@@ -165,46 +180,47 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 			}
 
 			// stopped dragging
-			if (CurrInput.isDragging == false && prevInput.isDragging)
-			{
-				if (CanPutt && PuttStrength > 0)
-				{
-					if (PlayerObj.Strokes >= GameManager.MaxStrokes)
-					{
-						GameManager.PlayerDNF(PlayerObj);
-						return;
-					}
+            if (CurrInput.isDragging == false && prevInput.isDragging)
+            {
+                if (CanPutt && PuttStrength > 0 && !freeze)
+                {
+					lastPuttPosition = transform.position;
+					lastPuttGravity = LocalGravityDir;
+			        hasLastPuttPosition = true;
 
-                    lastPuttPosition = rb.position;
-                    hasLastPuttPosition = true;
+                    Vector3 playerUp = -LocalGravityDir;
 
-                    Vector3 fwd = Quaternion.AngleAxis((float)CurrInput.yaw, Vector3.up) * Vector3.forward;
+					Vector3 referenceForward = Vector3.ProjectOnPlane(Vector3.forward, playerUp).normalized;
+					if (referenceForward.sqrMagnitude < 0.01f) 
+						referenceForward = Vector3.ProjectOnPlane(Vector3.up, playerUp).normalized;
+
+					Quaternion yawRotation = Quaternion.AngleAxis(CurrInput.yaw, playerUp);
+					Vector3 fwd = (yawRotation * referenceForward).normalized;
 
 					if (IsGrounded())
-					{
 						rb.AddForce(fwd * PuttStrength, ForceMode.VelocityChange);
-					}
 					else
-					{
 						rb.velocity = fwd * PuttStrength;
-					}
-
+						
 					PuttTimer = TickTimer.CreateFromSeconds(Runner, 3);
-					PlayerObj.Strokes++;
+                    PlayerObj.Strokes++;
 
-					if (CameraController.HasControl(this))
-					{
-						HUD.SetStrokeCount(PlayerObj.Strokes);
-					}
-				}
+                    if (CameraController.HasControl(this))
+                    {
+                        HUD.SetStrokeCount(PlayerObj.Strokes);
+                    }
+                }
 
-				PuttStrength = 0;
-				if (CameraController.HasControl(this))
-				{
-					HUD.HidePuttCharge();
-					guideArrow.localScale = new Vector3(1, 1, 0);
-				}
-			}
+                maxPuttStrength = 10;
+				HasSuperHit = false;
+                PuttStrength = 0;
+
+                if (CameraController.HasControl(this))
+                {
+                    HUD.HidePuttCharge();
+                    guideArrow.localScale = new Vector3(1, 1, 0);
+                }
+            }
 
 			if (CameraController.HasControl(this) && !isFirstUpdate)
 			{
@@ -361,24 +377,30 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 		if (toInitial)
 		{
 			TeleportBall(initialPosition);
+			Rpc_SetGravity(Vector3.down);
 		}
 		else if (hasLastPuttPosition)
 		{
 			TeleportBall(lastPuttPosition);
+			Rpc_SetGravity(lastPuttGravity);
 		}
 	}
 
 	[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-
-	
 	public void Rpc_Respawn(bool effect)
 	{
 		if (effect) Instantiate(ResourcesManager.Instance.splashEffect, transform.position, ResourcesManager.Instance.splashEffect.transform.rotation);
+		
 		if (Object.HasInputAuthority) CameraController.Recenter();
 
 		rb.velocity = rb.angularVelocity = Vector3.zero;
+		
 		TeleportBall(lastPuttPosition);
-		//rb.MovePosition(Level.Current.GetSpawnPosition(PlayerObj.Index));
+		
+		if (Object.HasStateAuthority)
+		{
+			Rpc_SetGravity(lastPuttGravity);
+		}
 	}
 
     private void TeleportBall(Vector3 targetPosition)
@@ -393,25 +415,35 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	    StartCoroutine(SuperStar());
     }
     private IEnumerator SuperStar()
-    {
-	    MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
-	    if (mr != null)
-	    {
-		    Color originalColor = mr.material.color;
-		    int buffTime = 0; 
-        
-		    while (buffTime <= 8)
-		    {
-			   
-			    mr.material.color = new Color(Random.value, Random.value, Random.value);
-			    yield return new WaitForSeconds(1f);
-			    buffTime += 1;
-		    }
+	{
+		superstar = true;
+		MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+		
+		if (mr != null)
+		{
+			Color originalColor = mr.material.color;
+			float duration = 8f; // Tiempo total del buff
+			float timer = 0f;
+			float rainbowSpeed = 2f; // Velocidad a la que cambian los colores
 
-		    mr.material.color = originalColor;
-	    }
-	    yield return null;
-    }
+			while (timer < duration)
+			{
+				// Calculamos el tono basado en el tiempo transcurrido
+				// El operador % 1f asegura que el valor se mantenga entre 0 y 1
+				float hue = (Time.time * rainbowSpeed) % 1f;
+				
+				// Convertimos de HSV a Color (Saturación y Brillo al máximo para el efecto)
+				mr.material.color = Color.HSVToRGB(hue, 1f, 1f);
+				
+				timer += Time.deltaTime;
+				yield return null; // Esperamos al siguiente frame para que sea fluido
+			}
+
+			mr.material.color = originalColor;
+		}
+		
+		superstar = false;
+	}
 
     public void startIntangible()
     {
@@ -427,6 +459,55 @@ public class Putter : NetworkBehaviour, ICanControlCamera
 	    yield return new WaitForSeconds(8f);
     
 	    gameObject.layer = originalLayer;
+    }
+    public void startFreeze()
+    {
+        StartCoroutine(Freeze());
+    }
+    public IEnumerator Freeze()
+    {
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            if (player.Index == PlayerObj.Index)
+            {
+                //Debug.Log("if Player found: " + player.Nickname + ": " + PlayerObj.Index);
+                continue;
+            }
+            //Debug.Log("Player found: " + player.Nickname + ": " + player.Index);
+            player.Controller.freeze = true;
+        }
+
+        yield return new WaitForSeconds(5f);
+
+        foreach (PlayerObject player in PlayerRegistry.Players)
+        {
+            player.Controller.freeze = false;
+        }
+    }
+    public void StartMagneticField()
+    {
+        // Solo el dueño de la bola inicia la corrutina de tiempo
+        if (Object.HasStateAuthority)
+        {
+            StartCoroutine(MagneticFieldRoutine());
+        }
+    }
+
+    private IEnumerator MagneticFieldRoutine()
+    {
+        // Buscamos el componente de sincronización
+        MagneticFieldSync sync = GetComponent<MagneticFieldSync>();
+
+        if (sync != null)
+        {
+            Debug.Log("Activando Campo Magnético en Red");
+            sync.SetBuffState(true); // Esto avisa a todos los jugadores
+
+            yield return new WaitForSeconds(8f);
+
+            Debug.Log("Desactivando Campo Magnético en Red");
+            sync.SetBuffState(false); // Esto apaga el campo en todos los jugadores
+        }
     }
     bool IsGrounded()
 	{
