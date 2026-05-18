@@ -88,8 +88,18 @@ public class RandomPerk : NetworkBehaviour
                 player.transform.position =
                     holePosition.position + positionOffset;
 
-                player.GetComponent<Rigidbody>().velocity =
-                    Vector3.zero;
+                Rigidbody rb = player.GetComponent<Rigidbody>();
+
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+
+                Putter putter = player.GetComponent<Putter>();
+
+                if (putter != null)
+                    putter.Rpc_SetGravity(Vector3.down);
 
                 break;
 
